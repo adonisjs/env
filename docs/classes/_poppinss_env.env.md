@@ -106,8 +106,8 @@ Processes environment variables by parsing a string in `dotfile` syntax.
 *__example__*:
  ```
 Env.process(`
-PORT=3000
-HOST=127.0.0.1
+ PORT=3000
+ HOST=127.0.0.1
 `)
 ```
 
