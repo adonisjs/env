@@ -1,0 +1,74 @@
+{
+  "name": "@poppinss/env",
+  "version": "0.0.0",
+  "description": "Environment variable manager for Node.js",
+  "main": "build/index.js",
+  "files": [
+    "adonis-typings.d.ts",
+    "build/src",
+    "build/index.d.ts",
+    "build/index.js"
+  ],
+  "scripts": {
+    "mrm": "mrm --preset=@adonisjs/mrm-preset",
+    "pretest": "npm run lint",
+    "test": "node japaFile.js",
+    "lint": "tslint --project tsconfig.json",
+    "clean": "del build",
+    "compile": "npm run lint && npm run clean && tsc",
+    "build": "npm run compile && typedoc --theme markdown --mdHideSources && git add docs",
+    "commit": "git-cz",
+    "release": "np",
+    "version": "npm run build"
+  },
+  "keywords": [
+    "env",
+    "adonisjs"
+  ],
+  "author": "virk,poppinss",
+  "license": "MIT",
+  "devDependencies": {
+    "@adonisjs/mrm-preset": "^2.0.2",
+    "@types/node": "^12.0.1",
+    "commitizen": "^3.1.1",
+    "cz-conventional-changelog": "^2.1.0",
+    "del-cli": "^1.1.0",
+    "doctoc": "^1.4.0",
+    "husky": "^2.2.0",
+    "japa": "^2.0.10",
+    "mrm": "^1.2.1",
+    "np": "^5.0.1",
+    "ts-node": "^8.1.0",
+    "tslint": "^5.16.0",
+    "tslint-eslint-rules": "^5.4.0",
+    "typedoc-plugin-markdown": "^1.2.0",
+    "typescript": "^3.4.5"
+  },
+  "nyc": {
+    "exclude": [
+      "test"
+    ],
+    "extension": [
+      ".ts"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "doctoc README.md --title='## Table of contents' && git add README.md",
+      "commit-msg": "node ./node_modules/@adonisjs/mrm-preset/validateCommit/conventional/validate.js"
+    }
+  },
+  "config": {
+    "commitizen": {
+      "path": "cz-conventional-changelog"
+    }
+  },
+  "np": {
+    "contents": ".",
+    "anyBranch": false
+  },
+  "dependencies": {
+    "@adonisjs/utils": "^1.4.4",
+    "dotenv": "^8.0.0"
+  }
+}
