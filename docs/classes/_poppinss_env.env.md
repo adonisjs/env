@@ -2,21 +2,9 @@
 
 # Class: Env
 
-The ENV module enables the use of environment variables by loading different `.env` files. In development and production, the module will look for `.env` file inside the project root and during testing, it will merging the values from `.env.testing` file (if exists).
+The ENV module enables the use of environment variables by parsing dotfiles syntax and updates the `process.env` object in Node.js.
 
-If `.env` file is missing, an hard exception will be raised and to turn off exceptions, you must define `ENV_SILENT` environment variable.
-
-```bash
-ENV_SILENT=true node server.js
-```
-
-To load `.env` file from a different location, you must define `ENV_PATH` environment variable.
-
-**Note: There is no way to override the `.env.testing` file path.**
-
-```bash
-ENV_PATH=/var/secrets/.env node server.js
-```
+AdonisJs automatically reads and passes the contents of `.env` file to this class.
 
 ## Hierarchy
 

@@ -9,4 +9,9 @@
 
 /// <reference path="./src/contracts.ts" />
 export { EnvContract } from '@poppinss/env/contracts'
-export { Env } from './src/Env'
+import { Env } from './src/Env'
+
+/**
+ * Returns a singleton of `env` as named `Env` export.
+ */
+export const env = new Env()
