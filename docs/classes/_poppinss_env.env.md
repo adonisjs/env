@@ -18,7 +18,6 @@ AdonisJs automatically reads and passes the contents of `.env` file to this clas
 
 ### Methods
 
-* [_castValue](_poppinss_env.env.md#_castvalue)
 * [get](_poppinss_env.env.md#get)
 * [getOrFail](_poppinss_env.env.md#getorfail)
 * [process](_poppinss_env.env.md#process)
@@ -28,23 +27,6 @@ AdonisJs automatically reads and passes the contents of `.env` file to this clas
 
 ## Methods
 
-<a id="_castvalue"></a>
-
-### `<Private>` _castValue
-
-▸ **_castValue**(value: *`string`*): `string` \| `boolean` \| `null` \| `undefined`
-
-Casts the string value to their native data type counter parts. Only done for `booleans` and `nulls`.
-
-**Parameters:**
-
-| Name | Type |
-| ------ | ------ |
-| value | `string` |
-
-**Returns:** `string` \| `boolean` \| `null` \| `undefined`
-
-___
 <a id="get"></a>
 
 ###  get
