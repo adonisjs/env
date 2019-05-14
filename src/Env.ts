@@ -39,6 +39,26 @@ import { EnvContract } from '@poppinss/env/contracts'
  */
 export class Env implements EnvContract {
   /**
+   * Casts the string value to their native data type
+   * counter parts. Only done for `booleans` and
+   * `nulls`.
+   */
+  private _castValue (value: string): string | boolean | null | undefined {
+    switch (value) {
+      case 'null':
+        return null
+      case 'true':
+      case '1':
+        return true
+      case 'false':
+      case '0':
+        return false
+      default:
+        return value
+    }
+  }
+
+  /**
    * Processes environment variables by parsing a string
    * in `dotfile` syntax.
    *
@@ -71,26 +91,6 @@ export class Env implements EnvContract {
         process.env[key] = envCollection[key]
       }
     })
-  }
-
-  /**
-   * Casts the string value to their native data type
-   * counter parts. Only done for `booleans` and
-   * `nulls`.
-   */
-  private _castValue (value: string): string | boolean | null | undefined {
-    switch (value) {
-      case 'null':
-        return null
-      case 'true':
-      case '1':
-        return true
-      case 'false':
-      case '0':
-        return false
-      default:
-        return value
-    }
   }
 
   /**
