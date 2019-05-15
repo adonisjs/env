@@ -14,7 +14,7 @@
 /// <reference path="./contracts.ts" />
 
 import * as dotenv from 'dotenv'
-import { Exception } from '@adonisjs/utils'
+import { Exception } from '@poppinss/utils'
 import { EnvContract } from '@poppinss/env/contracts'
 
 /**

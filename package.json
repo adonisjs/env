@@ -70,7 +70,7 @@
     "anyBranch": false
   },
   "dependencies": {
-    "@adonisjs/utils": "^1.4.4",
+    "@poppinss/utils": "^1.0.0",
     "dotenv": "^8.0.0"
   }
 }
