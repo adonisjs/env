@@ -45,6 +45,95 @@ export class Env implements EnvContract {
   }
 
   /**
+   * Returns value for a given key from the environment variables. Also
+   * the current parsed object is used to pull the reference.
+   */
+  private _getValue (key: string, parsed: any): string {
+    if (process.env[key]) {
+      return process.env[key]!
+    }
+
+    if (parsed[key]) {
+      return this._interpolate(parsed[key], parsed)
+    }
+
+    return ''
+  }
+
+  /**
+   * Interpolating the token wrapped inside the mustache
+   * braces.
+   */
+  private _interpolateMustache (token: string, parsed: any) {
+    /**
+     * Finding the closing brace. If closing brace is missing, we
+     * consider the block as a normal string
+     */
+    const closingBrace = token.indexOf('}')
+    if (closingBrace === -1) {
+      return token
+    }
+
+    /**
+     * Then we pull everything until the closing brace, except
+     * the opening brace and trim off all white spaces.
+     */
+    const varReference = token.slice(1, closingBrace).trim()
+
+    /**
+     * Getting the value of the reference inside the braces
+     */
+    return `${this._getValue(varReference, parsed)}${token.slice(closingBrace + 1)}`
+  }
+
+  /**
+   * Interpolating the escaped sequence.
+   */
+  private _interpolateEscapedSequence (value: string) {
+    return `$${value}`
+  }
+
+  /**
+   * Interpolating the variable reference starting with a
+   * `$`. We only capture numbers,letter and underscore.
+   * For other characters, one can use the mustache
+   * braces.
+   */
+  private _interpolateVariable (token: string, parsed: any) {
+    return token.replace(/[a-zA-Z0-9_]+/, (key) => {
+      return this._getValue(key, parsed)
+    })
+  }
+
+  /**
+   * Interpolates the referenced values
+   */
+  private _interpolate (value: string, parsed: any): string {
+    const tokens = value.split('$')
+
+    let newValue = ''
+    let isFirstToken = true
+
+    while (tokens.length) {
+      let token = tokens.shift()!
+
+      if (token.indexOf('\\') === 0) {
+        newValue += this._interpolateEscapedSequence(tokens.shift()!)
+      } else if (isFirstToken) {
+        newValue += token.replace(/\\/, '$')
+      } else if (token.startsWith('{')) {
+        newValue += this._interpolateMustache(token, parsed)
+      } else {
+        newValue += this._interpolateVariable(token, parsed)
+      }
+
+      isFirstToken = false
+    }
+
+    return newValue
+  }
+
+  /**
    * Processes environment variables by parsing a string
    * in `dotfile` syntax.
    *
@@ -74,7 +163,7 @@ export class Env implements EnvContract {
      */
     Object.keys(envCollection).forEach((key) => {
       if (process.env[key] === undefined || overwrite) {
-        process.env[key] = envCollection[key]
+        process.env[key] = this._interpolate(envCollection[key], envCollection)
       }
     })
   }
@@ -133,6 +222,6 @@ export class Env implements EnvContract {
    * Update/Set value for a key inside the process.env file.
    */
   public set (key: string, value: string): void {
-    process.env[key] = value
+    process.env[key] = this._interpolate(value, {})
   }
 }

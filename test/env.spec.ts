@@ -89,4 +89,64 @@ test.group('Env', (group) => {
     env.set('loadDb', 'false')
     assert.isFalse(env.get('loadDb'))
   })
+
+  test('interpolate values properly', async (assert) => {
+    const env = new Env()
+    process.env.USER = 'virk'
+
+    env.process([
+      'PORT=3333',
+      'HOST=127.0.0.1',
+      'URL=http://$HOST:$PORT',
+      'PASSWORD=pa\\$\\$word',
+      'PRICE=\\$2.99',
+      'NEW_PRICE=2.99\\$',
+      'REDIS_HOST=$HOST',
+      'REDIS-USER=$USER',
+      'REDIS_PASSWORD=$PASSWORD',
+      'REDIS_URL=$REDIS_HOST://${REDIS-USER}@$REDIS_PASSWORD',
+    ].join('\n'))
+
+    assert.equal(env.get('PORT'), '3333')
+    assert.equal(env.get('HOST'), '127.0.0.1')
+    assert.equal(env.get('URL'), 'http://127.0.0.1:3333')
+    assert.equal(env.get('PASSWORD'), 'pa\$\$word')
+    assert.equal(env.get('PRICE'), '$2.99')
+    assert.equal(env.get('NEW_PRICE'), '2.99$')
+    assert.equal(env.get('REDIS_HOST'), '127.0.0.1')
+    assert.equal(env.get('REDIS-USER'), 'virk')
+    assert.equal(env.get('REDIS_PASSWORD'), 'pa\$\$word')
+    assert.equal(env.get('REDIS_URL'), '127.0.0.1://virk@pa\$\$word')
+
+    delete process.env['USER']
+    delete process.env['PORT']
+    delete process.env['HOST']
+    delete process.env['URL']
+    delete process.env['PASSWORD']
+    delete process.env['PRICE']
+    delete process.env['NEW_PRICE']
+    delete process.env['REDIS_HOST']
+    delete process.env['REDIS-USER']
+    delete process.env['REDIS_PASSWORD']
+    delete process.env['REDIS_URL']
+  })
+
+  test('interpolate when calling env.set', async (assert) => {
+    const env = new Env()
+
+    env.process([
+      'PORT=3333',
+      'HOST=127.0.0.1',
+    ].join('\n'))
+
+    assert.equal(env.get('PORT'), '3333')
+    assert.equal(env.get('HOST'), '127.0.0.1')
+
+    env.set('URL', 'http://$HOST:$PORT')
+    assert.equal(env.get('URL'), 'http://127.0.0.1:3333')
+
+    delete process.env['PORT']
+    delete process.env['HOST']
+    delete process.env['URL']
+  })
 })
