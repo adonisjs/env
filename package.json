@@ -72,5 +72,17 @@
   "dependencies": {
     "@poppinss/utils": "^1.0.0",
     "dotenv": "^8.0.0"
-  }
+  },
+  "directories": {
+    "doc": "docs",
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/poppinss/env.git"
+  },
+  "bugs": {
+    "url": "https://github.com/poppinss/env/issues"
+  },
+  "homepage": "https://github.com/poppinss/env#readme"
 }
