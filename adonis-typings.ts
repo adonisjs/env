@@ -7,10 +7,11 @@
 * file that was distributed with this source code.
 */
 
+/// <reference path="./src/contracts.ts" />
+
 declare module '@ioc:Adonis/Src/Env' {
-  /// <reference path="./src/contracts.ts" />
   import { EnvContract as BaseContract } from '@poppinss/env/contracts'
-  interface EnvContract extends BaseContract {}
+  export interface EnvContract extends BaseContract {}
 
   const Env: EnvContract
   export default Env

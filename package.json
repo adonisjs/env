@@ -4,7 +4,7 @@
   "description": "Environment variable manager for Node.js",
   "main": "build/index.js",
   "files": [
-    "adonis-typings.d.ts",
+    "build/adonis-typings.d.ts",
     "build/src",
     "build/index.d.ts",
     "build/index.js"
