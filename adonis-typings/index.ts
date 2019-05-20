@@ -7,7 +7,7 @@
 * file that was distributed with this source code.
 */
 
-/// <reference path="./src/contracts.ts" />
+/// <reference path="../src/contracts.ts" />
 
 declare module '@ioc:Adonis/Src/Env' {
   import { EnvContract as BaseContract } from '@poppinss/env/contracts'
