@@ -11,11 +11,9 @@
 * file that was distributed with this source code.
 */
 
-/// <reference path="./contracts.ts" />
-
 import * as dotenv from 'dotenv'
 import { Exception } from '@poppinss/utils'
-import { EnvContract } from '@poppinss/env/contracts'
+import { EnvContract } from './contracts'
 
 /**
  * The ENV module enables the use of environment variables by parsing dotfiles syntax

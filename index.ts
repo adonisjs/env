@@ -7,9 +7,8 @@
 * file that was distributed with this source code.
 */
 
-/// <reference path="./src/contracts.ts" />
-export { EnvContract } from '@poppinss/env/contracts'
 import { Env } from './src/Env'
+export { EnvContract } from './src/contracts'
 
 /**
  * Returns a singleton of `env` as named `Env` export.
