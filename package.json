@@ -1,6 +1,6 @@
 {
   "name": "@poppinss/env",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Environment variable manager for Node.js",
   "main": "build/index.js",
   "files": [
