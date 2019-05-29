@@ -12,7 +12,7 @@ AdonisJs automatically reads and passes the contents of `.env` file to this clas
 
 ## Implements
 
-* [EnvContract](../interfaces/_contracts_.envcontract.md)
+* [EnvContract](../interfaces/_poppinss_env.envcontract.md)
 
 ## Index
 

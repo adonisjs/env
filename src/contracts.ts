@@ -1,4 +1,8 @@
-/*
+/**
+ * @module @poppinss/env
+ */
+
+ /*
 * @poppinss/env
 *
 * (c) Harminder Virk <virk@adonisjs.com>

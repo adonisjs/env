@@ -1,4 +1,4 @@
-[@poppinss/env](../README.md) > ["contracts"](../modules/_contracts_.md) > [EnvContract](../interfaces/_contracts_.envcontract.md)
+[@poppinss/env](../README.md) > [@poppinss/env](../modules/_poppinss_env.md) > [EnvContract](../interfaces/_poppinss_env.envcontract.md)
 
 # Interface: EnvContract
 
@@ -14,10 +14,10 @@
 
 ### Methods
 
-* [get](_contracts_.envcontract.md#get)
-* [getOrFail](_contracts_.envcontract.md#getorfail)
-* [process](_contracts_.envcontract.md#process)
-* [set](_contracts_.envcontract.md#set)
+* [get](_poppinss_env.envcontract.md#get)
+* [getOrFail](_poppinss_env.envcontract.md#getorfail)
+* [process](_poppinss_env.envcontract.md#process)
+* [set](_poppinss_env.envcontract.md#set)
 
 ---
 
