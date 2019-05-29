@@ -136,7 +136,7 @@ export class Env implements EnvContract {
    * in `dotfile` syntax.
    *
    * @example
-   * ```
+   * ```ts
    * Env.process(`
    *  PORT=3000
    *  HOST=127.0.0.1
@@ -182,6 +182,11 @@ export class Env implements EnvContract {
    *
    * A default value can also be defined which is returned when original value
    * is undefined.
+   *
+   * @example
+   * ```ts
+   * Env.get('PORT', 3333)
+   * ```
    */
   public get (key: string, defaultValue?: any): string | boolean | null | undefined {
     const value = process.env[key]
@@ -201,6 +206,11 @@ export class Env implements EnvContract {
    *
    * We recommended using this method for **environment variables** that are strongly
    * required to run the application stably.
+   *
+   * @example
+   * ```ts
+   * Env.getOrFail('PORT', 3333)
+   * ```
    */
   public getOrFail (key: string, defaultValue?: any): string | boolean {
     const value = this.get(key, defaultValue)
@@ -217,7 +227,13 @@ export class Env implements EnvContract {
   }
 
   /**
-   * Update/Set value for a key inside the process.env file.
+   * Update or set value for a given property
+   * inside `process.env`.
+   *
+   * @example
+   * ```ts
+   * Env.set('PORT', 3333)
+   * ```
    */
   public set (key: string, value: string): void {
     process.env[key] = this._interpolate(value, {})
