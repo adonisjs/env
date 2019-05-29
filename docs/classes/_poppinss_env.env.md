@@ -12,7 +12,7 @@ AdonisJs automatically reads and passes the contents of `.env` file to this clas
 
 ## Implements
 
-* `EnvContract`
+* [EnvContract](../interfaces/_contracts_.envcontract.md)
 
 ## Index
 
@@ -63,6 +63,11 @@ Everything else is returned as a string.
 
 A default value can also be defined which is returned when original value is undefined.
 
+*__example__*:
+ ```ts
+Env.get('PORT', 3333)
+```
+
 **Parameters:**
 
 | Name | Type |
@@ -85,6 +90,11 @@ The method is similar to it's counter part [get](_poppinss_env.env.md#get) metho
 
 We recommended using this method for **environment variables** that are strongly required to run the application stably.
 
+*__example__*:
+ ```ts
+Env.getOrFail('PORT', 3333)
+```
+
 **Parameters:**
 
 | Name | Type |
@@ -104,7 +114,7 @@ ___
 Processes environment variables by parsing a string in `dotfile` syntax.
 
 *__example__*:
- ```
+ ```ts
 Env.process(`
  PORT=3000
  HOST=127.0.0.1
@@ -136,7 +146,12 @@ ___
 
 ▸ **set**(key: *`string`*, value: *`string`*): `void`
 
-Update/Set value for a key inside the process.env file.
+Update or set value for a given property inside `process.env`.
+
+*__example__*:
+ ```ts
+Env.set('PORT', 3333)
+```
 
 **Parameters:**
 
