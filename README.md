@@ -3,7 +3,7 @@
 </div>
 
 # Env
-[![circleci-image]][circleci-url] [![npm-image]][npm-url] ![](https://img.shields.io/badge/Typescript-294E80.svg?style=for-the-badge&logo=typescript)
+[![circleci-image]][circleci-url] [![npm-image]][npm-url] ![][typescript-image] [![license-image]][license-url]
 
 Environment variables parser and reader for Node.js. This module parses the raw string in dotfile format and set `process.env` variables from it. Also, you can make use of bash like syntax for [variable interpolation](#variable-interpolation).
 
