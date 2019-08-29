@@ -9,7 +9,7 @@
 
 /// <reference path="../src/contracts.ts" />
 
-import * as test from 'japa'
+import test from 'japa'
 import { Env } from '../src/Env'
 
 test.group('Env', (group) => {

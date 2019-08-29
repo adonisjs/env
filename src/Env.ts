@@ -11,7 +11,7 @@
 * file that was distributed with this source code.
 */
 
-import * as dotenv from 'dotenv'
+import dotenv from 'dotenv'
 import { Exception } from '@poppinss/utils'
 import { EnvContract } from './contracts'
 
