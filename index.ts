@@ -1,9 +1,9 @@
 /**
- * @module @poppinss/env
+ * @module @adonisjs/env
  */
 
 /*
-* @poppinss/config
+* @adonisjs/env
 *
 * (c) Harminder Virk <virk@adonisjs.com>
 *
@@ -12,7 +12,6 @@
 */
 
 import { Env } from './src/Env'
-export { EnvContract } from './src/contracts'
 
 /**
  * Returns a singleton of `env` as named `Env` export.

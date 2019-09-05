@@ -1,9 +1,9 @@
 /**
- * @module @poppinss/env
+ * @module @adonisjs/env
  */
 
 /*
-* @poppinss/env
+* @adonisjs/env
 *
 * (c) Harminder Virk <virk@adonisjs.com>
 *
@@ -11,9 +11,11 @@
 * file that was distributed with this source code.
 */
 
+/// <reference path="../adonis-typings/env.ts" />
+
 import dotenv from 'dotenv'
 import { Exception } from '@poppinss/utils'
-import { EnvContract } from './contracts'
+import { EnvContract } from '@ioc:Adonis/Core/Env'
 
 /**
  * The ENV module enables the use of environment variables by parsing dotfiles syntax

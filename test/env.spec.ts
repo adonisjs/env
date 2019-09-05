@@ -7,8 +7,6 @@
 * file that was distributed with this source code.
 */
 
-/// <reference path="../src/contracts.ts" />
-
 import test from 'japa'
 import { Env } from '../src/Env'
 

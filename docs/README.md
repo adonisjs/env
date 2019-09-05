@@ -1,4 +1,4 @@
-**[@poppinss/env](README.md)**
+**[@adonisjs/env](README.md)**
 
 [Globals](README.md)
 
@@ -6,5 +6,7 @@
 
 ### External modules
 
-* ["Env"](modules/_env_.md)
-* ["contracts"](modules/_contracts_.md)
+* ["adonis-typings/env"](modules/_adonis_typings_env_.md)
+* ["providers/EnvProvider"](modules/_providers_envprovider_.md)
+* ["src/Env"](modules/_src_env_.md)
+* ["src/loader"](modules/_src_loader_.md)

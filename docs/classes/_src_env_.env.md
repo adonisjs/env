@@ -1,6 +1,6 @@
-**[@poppinss/env](../README.md)**
+**[@adonisjs/env](../README.md)**
 
-[Globals](../README.md) › ["Env"](../modules/_env_.md) › [Env](_env_.env.md)
+[Globals](../README.md) › ["src/Env"](../modules/_src_env_.md) › [Env](_src_env_.env.md)
 
 # Class: Env
 
@@ -15,24 +15,22 @@ AdonisJs automatically reads and passes the contents of `.env` file to this clas
 
 ## Implements
 
-* [EnvContract](../interfaces/_contracts_.envcontract.md)
+* EnvContract
 
 ## Index
 
 ### Methods
 
-* [get](_env_.env.md#get)
-* [getOrFail](_env_.env.md#getorfail)
-* [process](_env_.env.md#process)
-* [set](_env_.env.md#set)
+* [get](_src_env_.env.md#get)
+* [getOrFail](_src_env_.env.md#getorfail)
+* [process](_src_env_.env.md#process)
+* [set](_src_env_.env.md#set)
 
 ## Methods
 
 ###  get
 
 ▸ **get**(`key`: string, `defaultValue?`: any): *string | boolean | null | undefined*
-
-*Implementation of [EnvContract](../interfaces/_contracts_.envcontract.md)*
 
 Get value for a key from the process.env. Since `process.env` object stores all
 values as strings, this method will cast them to their counterpart datatypes.
@@ -70,9 +68,7 @@ ___
 
 ▸ **getOrFail**(`key`: string, `defaultValue?`: any): *string | boolean*
 
-*Implementation of [EnvContract](../interfaces/_contracts_.envcontract.md)*
-
-The method is similar to it's counter part [get](_env_.env.md#get) method. However, it will
+The method is similar to it's counter part [get](_src_env_.env.md#get) method. However, it will
 raise exception when the original value is non-existing.
 
 `undefined`, `null` and `empty strings` are considered as non-exisitng values.
@@ -134,8 +130,6 @@ ___
 ###  set
 
 ▸ **set**(`key`: string, `value`: string): *void*
-
-*Implementation of [EnvContract](../interfaces/_contracts_.envcontract.md)*
 
 Update or set value for a given property
 inside `process.env`.

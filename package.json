@@ -1,9 +1,11 @@
 {
-  "name": "@poppinss/env",
+  "name": "@adonisjs/env",
   "version": "1.0.6",
   "description": "Environment variable manager for Node.js",
   "main": "build/index.js",
   "files": [
+    "build/adonis-typings",
+    "build/providers",
     "build/src",
     "build/index.d.ts",
     "build/index.js"
@@ -24,10 +26,12 @@
     "env",
     "adonisjs"
   ],
-  "author": "virk,poppinss",
+  "author": "virk,adonisjs",
   "license": "MIT",
   "devDependencies": {
+    "@adonisjs/fold": "^6.1.6",
     "@adonisjs/mrm-preset": "^2.1.0",
+    "@poppinss/dev-utils": "^1.0.1",
     "@types/dotenv": "^6.1.1",
     "@types/node": "^12.7.2",
     "commitizen": "^4.0.3",
@@ -79,10 +83,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/poppinss/env.git"
+    "url": "git+https://github.com/adonisjs/env.git"
   },
   "bugs": {
-    "url": "https://github.com/poppinss/env/issues"
+    "url": "https://github.com/adonisjs/env/issues"
   },
-  "homepage": "https://github.com/poppinss/env#readme"
+  "homepage": "https://github.com/adonisjs/env#readme",
+  "typings": "./build/adonis-typings/env.d.ts"
 }
