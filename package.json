@@ -2,13 +2,12 @@
   "name": "@adonisjs/env",
   "version": "1.0.7",
   "description": "Environment variable manager for Node.js",
-  "main": "build/index.js",
   "files": [
     "build/adonis-typings",
     "build/providers",
     "build/src",
-    "build/index.d.ts",
-    "build/index.js"
+    "build/standalone.d.ts",
+    "build/standalone.js"
   ],
   "scripts": {
     "mrm": "mrm --preset=@adonisjs/mrm-preset",
@@ -88,6 +87,5 @@
   "bugs": {
     "url": "https://github.com/adonisjs/env/issues"
   },
-  "homepage": "https://github.com/adonisjs/env#readme",
-  "typings": "./build/adonis-typings/env.d.ts"
+  "homepage": "https://github.com/adonisjs/env#readme"
 }

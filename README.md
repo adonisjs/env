@@ -36,7 +36,7 @@ yarn add @adonisjs/env
 and then use it as follows
 
 ```ts
-import { env } from '@adonisjs/env'
+import { env } from '@adonisjs/env/build/standalone'
 
 env.process(`
   PORT=3333
@@ -66,6 +66,17 @@ The `@adonisjs/core` includes this module and hence there is no need to install 
 export const providers = [
   '@adonisjs/env/build/providers/EnvProvider',
 ]
+```
+
+After this, you have to register the typings file inside `files` array for Typescript to pick the ambient module.
+
+> All this hassle is required, since this module is never meant to be installed standalone.
+
+**tsconfig.json**
+```json
+{
+  "files": ["./node_modules/@adonisjs/env/build/adonis-typings/env.d.ts"]
+}
 ```
 
 The `EnvProvider` will look for `.env` file is the project root and parses it's content automatically. When not using this with AdonisJs, then you need to perform this process by yourself. 
