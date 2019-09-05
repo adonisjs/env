@@ -1,6 +1,6 @@
 {
   "name": "@adonisjs/env",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Environment variable manager for Node.js",
   "files": [
     "build/adonis-typings",
