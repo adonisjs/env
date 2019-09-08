@@ -2,7 +2,7 @@
  * @module @adonisjs/env
  */
 
- /*
+/*
 * @adonisjs/env
 *
 * (c) Harminder Virk <virk@adonisjs.com>
