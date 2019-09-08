@@ -1,10 +1,14 @@
+/**
+ * @module @adonisjs/env
+ */
+
 /*
- * @adonisjs/env
- *
- * (c) Harminder Virk <virk@adonisjs.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
+* @adonisjs/env
+*
+* (c) Harminder Virk <virk@adonisjs.com>
+*
+* For the full copyright and license information, please view the LICENSE
+* file that was distributed with this source code.
 */
 
 import { IocContract } from '@adonisjs/fold'
@@ -23,7 +27,7 @@ export default class EnvProvider {
    * Registers the binding to the AdonisJs container
    */
   public register () {
-    this.$container.bind('Adonis/Core/Env', () => {
+    this.$container.singleton('Adonis/Core/Env', () => {
       const env = new Env()
 
       const app = this.$container.use('Adonis/Core/Application')
