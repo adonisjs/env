@@ -1,6 +1,6 @@
 **[@adonisjs/env](../README.md)**
 
-[Globals](../README.md) › ["providers/EnvProvider"](../modules/_providers_envprovider_.md) › [EnvProvider](_providers_envprovider_.envprovider.md)
+[Globals](../README.md) › [&quot;providers/EnvProvider&quot;](../modules/_providers_envprovider_.md) › [EnvProvider](_providers_envprovider_.envprovider.md)
 
 # Class: EnvProvider
 

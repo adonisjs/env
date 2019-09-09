@@ -1,6 +1,6 @@
 **[@adonisjs/env](../README.md)**
 
-[Globals](../README.md) › ["providers/EnvProvider"](_providers_envprovider_.md)
+[Globals](../README.md) › [&quot;providers/EnvProvider&quot;](_providers_envprovider_.md)
 
 # External module: "providers/EnvProvider"
 
