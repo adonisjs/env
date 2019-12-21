@@ -1,6 +1,4 @@
-**[@adonisjs/env](../README.md)**
-
-[Globals](../README.md) › [&quot;standalone&quot;](_standalone_.md)
+[@adonisjs/env](../README.md) › ["standalone"](_standalone_.md)
 
 # External module: "standalone"
 
@@ -14,6 +12,6 @@
 
 ### `Const` env
 
-• **env**: *[Env](../classes/_src_env_.env.md)* =  new Env()
+• **env**: *[Env](../classes/_src_env_.env.md)‹›* =  new Env()
 
 Returns a singleton of `env` as named `Env` export.

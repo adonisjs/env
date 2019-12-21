@@ -1,6 +1,4 @@
-**[@adonisjs/env](../README.md)**
-
-[Globals](../README.md) › [&quot;src/Env&quot;](../modules/_src_env_.md) › [Env](_src_env_.env.md)
+[@adonisjs/env](../README.md) › ["src/Env"](../modules/_src_env_.md) › [Env](_src_env_.env.md)
 
 # Class: Env
 
@@ -66,7 +64,7 @@ ___
 
 ###  getOrFail
 
-▸ **getOrFail**(`key`: string, `defaultValue?`: any): *string | boolean*
+▸ **getOrFail**(`key`: string): *string | boolean*
 
 The method is similar to it's counter part [get](_src_env_.env.md#get) method. However, it will
 raise exception when the original value is non-existing.
@@ -78,7 +76,7 @@ required to run the application stably.
 
 **`example`** 
 ```ts
-Env.getOrFail('PORT', 3333)
+Env.getOrFail('PORT')
 ```
 
 **Parameters:**
@@ -86,7 +84,6 @@ Env.getOrFail('PORT', 3333)
 Name | Type |
 ------ | ------ |
 `key` | string |
-`defaultValue?` | any |
 
 **Returns:** *string | boolean*
 

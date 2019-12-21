@@ -1,6 +1,4 @@
-**[@adonisjs/env](../README.md)**
-
-[Globals](../README.md) › [&quot;src/loader&quot;](_src_loader_.md)
+[@adonisjs/env](../README.md) › ["src/loader"](_src_loader_.md)
 
 # External module: "src/loader"
 
