@@ -25,7 +25,7 @@ test.group('Env loader', (group) => {
   })
 
   test('load and return contents of .env file', async (assert) => {
-    await fs.add('.env', `PORT=3000`)
+    await fs.add('.env', 'PORT=3000')
     const { envContents, testEnvContent } = envLoader(fs.basePath)
     assert.equal(envContents, 'PORT=3000')
     assert.equal(testEnvContent, '')
@@ -34,8 +34,8 @@ test.group('Env loader', (group) => {
   test('load .env.testing file when it exists and NODE_ENV = testing', async (assert) => {
     process.env.NODE_ENV = 'testing'
 
-    await fs.add('.env', `PORT=3000`)
-    await fs.add('.env.testing', `PORT=4000`)
+    await fs.add('.env', 'PORT=3000')
+    await fs.add('.env.testing', 'PORT=4000')
 
     const { envContents, testEnvContent } = envLoader(fs.basePath)
     assert.equal(envContents, 'PORT=3000')
@@ -45,8 +45,8 @@ test.group('Env loader', (group) => {
   })
 
   test('do not load .env.testing file when it exists and NODE_ENV != testing', async (assert) => {
-    await fs.add('.env', `PORT=3000`)
-    await fs.add('.env.testing', `PORT=4000`)
+    await fs.add('.env', 'PORT=3000')
+    await fs.add('.env.testing', 'PORT=4000')
 
     const { envContents, testEnvContent } = envLoader(fs.basePath)
     assert.equal(envContents, 'PORT=3000')
