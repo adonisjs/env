@@ -29,7 +29,7 @@ export class Env implements EnvContract {
    * counter parts. Only done for `booleans` and
    * `nulls`.
    */
-  private _castValue (value: string): string | boolean | null | undefined {
+  private castValue (value: string): string | boolean | null | undefined {
     switch (value) {
       case 'null':
         return null
@@ -48,13 +48,13 @@ export class Env implements EnvContract {
    * Returns value for a given key from the environment variables. Also
    * the current parsed object is used to pull the reference.
    */
-  private _getValue (key: string, parsed: any): string {
+  private getValue (key: string, parsed: any): string {
     if (process.env[key]) {
       return process.env[key]!
     }
 
     if (parsed[key]) {
-      return this._interpolate(parsed[key], parsed)
+      return this.interpolate(parsed[key], parsed)
     }
 
     return ''
@@ -64,7 +64,7 @@ export class Env implements EnvContract {
    * Interpolating the token wrapped inside the mustache
    * braces.
    */
-  private _interpolateMustache (token: string, parsed: any) {
+  private interpolateMustache (token: string, parsed: any) {
     /**
      * Finding the closing brace. If closing brace is missing, we
      * consider the block as a normal string
@@ -83,13 +83,13 @@ export class Env implements EnvContract {
     /**
      * Getting the value of the reference inside the braces
      */
-    return `${this._getValue(varReference, parsed)}${token.slice(closingBrace + 1)}`
+    return `${this.getValue(varReference, parsed)}${token.slice(closingBrace + 1)}`
   }
 
   /**
    * Interpolating the escaped sequence.
    */
-  private _interpolateEscapedSequence (value: string) {
+  private interpolateEscapedSequence (value: string) {
     return `$${value}`
   }
 
@@ -99,16 +99,16 @@ export class Env implements EnvContract {
    * For other characters, one can use the mustache
    * braces.
    */
-  private _interpolateVariable (token: string, parsed: any) {
+  private interpolateVariable (token: string, parsed: any) {
     return token.replace(/[a-zA-Z0-9_]+/, (key) => {
-      return this._getValue(key, parsed)
+      return this.getValue(key, parsed)
     })
   }
 
   /**
    * Interpolates the referenced values
    */
-  private _interpolate (value: string, parsed: any): string {
+  private interpolate (value: string, parsed: any): string {
     const tokens = value.split('$')
 
     let newValue = ''
@@ -118,13 +118,13 @@ export class Env implements EnvContract {
       let token = tokens.shift()!
 
       if (token.indexOf('\\') === 0) {
-        newValue += this._interpolateEscapedSequence(tokens.shift()!)
+        newValue += this.interpolateEscapedSequence(tokens.shift()!)
       } else if (isFirstToken) {
         newValue += token.replace(/\\/, '$')
       } else if (token.startsWith('{')) {
-        newValue += this._interpolateMustache(token, parsed)
+        newValue += this.interpolateMustache(token, parsed)
       } else {
-        newValue += this._interpolateVariable(token, parsed)
+        newValue += this.interpolateVariable(token, parsed)
       }
 
       isFirstToken = false
@@ -163,7 +163,7 @@ export class Env implements EnvContract {
      */
     Object.keys(envCollection).forEach((key) => {
       if (process.env[key] === undefined || overwrite) {
-        process.env[key] = this._interpolate(envCollection[key], envCollection)
+        process.env[key] = this.interpolate(envCollection[key], envCollection)
       }
     })
   }
@@ -197,7 +197,7 @@ export class Env implements EnvContract {
       return defaultValue
     }
 
-    return this._castValue(value)
+    return this.castValue(value)
   }
 
   /**
@@ -238,6 +238,6 @@ export class Env implements EnvContract {
    * ```
    */
   public set (key: string, value: string): void {
-    process.env[key] = this._interpolate(value, {})
+    process.env[key] = this.interpolate(value, {})
   }
 }
