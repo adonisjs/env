@@ -211,11 +211,11 @@ export class Env implements EnvContract {
    *
    * @example
    * ```ts
-   * Env.getOrFail('PORT', 3333)
+   * Env.getOrFail('PORT')
    * ```
    */
-  public getOrFail (key: string, defaultValue?: any): string | boolean {
-    const value = this.get(key, defaultValue)
+  public getOrFail (key: string): string | boolean {
+    const value = this.get(key)
 
     if (!value && value !== false) {
       throw new Exception(
