@@ -2,6 +2,7 @@
   "name": "@adonisjs/env",
   "version": "1.0.10",
   "description": "Environment variable manager for Node.js",
+  "main": "build/providers/EnvProvider.js",
   "files": [
     "build/adonis-typings",
     "build/providers",
