@@ -29,7 +29,7 @@
   "author": "virk,adonisjs",
   "license": "MIT",
   "devDependencies": {
-    "@adonisjs/fold": "^6.2.3",
+    "@adonisjs/fold": "^6.3.2",
     "@adonisjs/mrm-preset": "^2.2.4",
     "@poppinss/dev-utils": "^1.0.4",
     "@types/dotenv": "^8.2.0",
