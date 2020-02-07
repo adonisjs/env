@@ -43,7 +43,7 @@
     "husky": "^4.2.1",
     "japa": "^3.0.1",
     "mrm": "^2.0.4",
-    "np": "^6.0.0",
+    "np": "^5.2.1",
     "ts-node": "^8.6.2",
     "typedoc": "^0.15.5",
     "typedoc-plugin-external-module-name": "^3.0.0",
