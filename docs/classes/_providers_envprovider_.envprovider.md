@@ -16,7 +16,7 @@ The AdonisJs provider to register the binding to the container
 
 ### Properties
 
-* [$container](_providers_envprovider_.envprovider.md#protected-$container)
+* [$container](_providers_envprovider_.envprovider.md#protected-container)
 
 ### Methods
 
