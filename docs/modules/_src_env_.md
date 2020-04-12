@@ -1,6 +1,6 @@
 [@adonisjs/env](../README.md) › ["src/Env"](_src_env_.md)
 
-# External module: "src/Env"
+# Module: "src/Env"
 
 ## Index
 

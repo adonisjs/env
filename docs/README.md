@@ -4,7 +4,7 @@
 
 ## Index
 
-### External modules
+### Modules
 
 * ["adonis-typings/env"](modules/_adonis_typings_env_.md)
 * ["providers/EnvProvider"](modules/_providers_envprovider_.md)

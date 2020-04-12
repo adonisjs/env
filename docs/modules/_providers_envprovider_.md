@@ -1,6 +1,6 @@
 [@adonisjs/env](../README.md) › ["providers/EnvProvider"](_providers_envprovider_.md)
 
-# External module: "providers/EnvProvider"
+# Module: "providers/EnvProvider"
 
 ## Index
 

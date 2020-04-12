@@ -1,6 +1,6 @@
 [@adonisjs/env](../README.md) › ["src/loader"](_src_loader_.md)
 
-# External module: "src/loader"
+# Module: "src/loader"
 
 ## Index
 
@@ -23,3 +23,7 @@ Name | Type |
 `appRoot` | string |
 
 **Returns:** *object*
+
+* **envContents**: *string*
+
+* **testEnvContent**: *string*
