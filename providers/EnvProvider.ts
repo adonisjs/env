@@ -1,7 +1,3 @@
-/**
- * @module @adonisjs/env
- */
-
 /*
 * @adonisjs/env
 *
@@ -20,17 +16,17 @@ import { envLoader } from '../src/loader'
  * The AdonisJs provider to register the binding to the container
  */
 export default class EnvProvider {
-  constructor (protected $container: IocContract) {
+  constructor (protected container: IocContract) {
   }
 
   /**
    * Registers the binding to the AdonisJs container
    */
   public register () {
-    this.$container.singleton('Adonis/Core/Env', () => {
+    this.container.singleton('Adonis/Core/Env', () => {
       const env = new Env()
 
-      const app = this.$container.use('Adonis/Core/Application')
+      const app = this.container.use('Adonis/Core/Application')
       const { envContents, testEnvContent } = envLoader(app.appRoot)
 
       env.process(envContents, false)
