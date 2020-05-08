@@ -130,6 +130,31 @@ export class Env implements EnvContract {
   }
 
   /**
+   * Parser environment variables by parsing a string
+   * in `dotfile` syntax.
+   *
+   * @example
+   * ```ts
+   * Env.parse(`
+   *  PORT=3000
+   *  HOST=127.0.0.1
+   * `)
+   *
+   * // Output
+   * { PORT: '3000', HOST: '127.0.0.1' }
+   * ```
+   *
+   */
+  public parse (envString: string) {
+    const envCollection = dotenv.parse(envString.trim())
+
+    return Object.keys(envCollection).reduce((result, key) => {
+      result[key] = this.interpolate(envCollection[key], envCollection)
+      return result
+    }, {})
+  }
+
+  /**
    * Processes environment variables by parsing a string
    * in `dotfile` syntax.
    *

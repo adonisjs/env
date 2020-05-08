@@ -10,6 +10,7 @@
 declare module '@ioc:Adonis/Core/Env' {
   export interface EnvContract {
     process (envString: string, overwrite?: boolean): void
+    parse (envString: string): { [key: string]: string }
     get (key: string, defaultValue?: any): string | boolean | null | undefined
     getOrFail (key: string): string | boolean
     set (key: string, value: string): void

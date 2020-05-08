@@ -104,7 +104,7 @@ test.group('Env', (group) => {
     const env = new Env()
     process.env.USER = 'virk'
 
-    env.process([
+    const envString = [
       'PORT=3333',
       'HOST=127.0.0.1',
       'URL=http://$HOST:$PORT',
@@ -115,7 +115,9 @@ test.group('Env', (group) => {
       'REDIS-USER=$USER',
       'REDIS_PASSWORD=$PASSWORD',
       'REDIS_URL=$REDIS_HOST://${REDIS-USER}@$REDIS_PASSWORD',
-    ].join('\n'))
+    ].join('\n')
+
+    env.process(envString)
 
     assert.equal(env.get('PORT'), '3333')
     assert.equal(env.get('HOST'), '127.0.0.1')
@@ -158,5 +160,36 @@ test.group('Env', (group) => {
     delete process.env['PORT']
     delete process.env['HOST']
     delete process.env['URL']
+  })
+
+  test('interpolate values during parse', async (assert) => {
+    const env = new Env()
+    process.env.USER = 'virk'
+
+    const envString = [
+      'PORT=3333',
+      'HOST=127.0.0.1',
+      'URL=http://$HOST:$PORT',
+      'PASSWORD=pa\\$\\$word',
+      'PRICE=\\$2.99',
+      'NEW_PRICE=2.99\\$',
+      'REDIS_HOST=$HOST',
+      'REDIS-USER=$USER',
+      'REDIS_PASSWORD=$PASSWORD',
+      'REDIS_URL=$REDIS_HOST://${REDIS-USER}@$REDIS_PASSWORD',
+    ].join('\n')
+
+    assert.deepEqual(env.parse(envString), {
+      PORT: '3333',
+      HOST: '127.0.0.1',
+      URL: 'http://127.0.0.1:3333',
+      PASSWORD: 'pa\$\$word',
+      PRICE: '$2.99',
+      NEW_PRICE: '2.99$',
+      REDIS_HOST: '127.0.0.1',
+      'REDIS-USER': 'virk',
+      REDIS_PASSWORD: 'pa\$\$word',
+      REDIS_URL: '127.0.0.1://virk@pa\$\$word',
+    })
   })
 })
