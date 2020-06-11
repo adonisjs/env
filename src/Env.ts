@@ -21,6 +21,12 @@ import { EnvContract } from '@ioc:Adonis/Core/Env'
  */
 export class Env implements EnvContract {
   /**
+   *  Cached value of any environement variables to avoid
+   *  multiple call to `process.env`.
+   */
+  private cachedValue = new Map<string, any>()
+
+  /**
    * Casts the string value to their native data type
    * counter parts. Only done for `booleans` and
    * `nulls`.
@@ -45,8 +51,10 @@ export class Env implements EnvContract {
    * the current parsed object is used to pull the reference.
    */
   private getValue (key: string, parsed: any): string {
-    if (process.env[key]) {
-      return process.env[key]!
+    const systemValue = process.env[key]
+
+    if (systemValue) {
+      return systemValue
     }
 
     if (parsed[key]) {
@@ -184,7 +192,9 @@ export class Env implements EnvContract {
      */
     Object.keys(envCollection).forEach((key) => {
       if (process.env[key] === undefined || overwrite) {
-        process.env[key] = this.interpolate(envCollection[key], envCollection)
+        const interpolatedValue = this.interpolate(envCollection[key], envCollection)
+        process.env[key] = interpolatedValue
+        this.cachedValue.set(key, this.castValue(interpolatedValue))
       }
     })
   }
@@ -212,13 +222,19 @@ export class Env implements EnvContract {
    * ```
    */
   public get (key: string, defaultValue?: any): string | boolean | null | undefined {
+    if (this.cachedValue.has(key)) {
+      return this.cachedValue.get(key) as string | boolean | null | undefined
+    }
+
     const value = process.env[key]
 
     if (value === undefined) {
       return defaultValue
     }
 
-    return this.castValue(value)
+    const castedValue = this.castValue(value)
+    this.cachedValue.set(key, castedValue)
+    return castedValue
   }
 
   /**
@@ -259,6 +275,9 @@ export class Env implements EnvContract {
    * ```
    */
   public set (key: string, value: string): void {
-    process.env[key] = this.interpolate(value, {})
+    const interpolatedValue = this.interpolate(value, {})
+
+    this.cachedValue.set(key, this.castValue(interpolatedValue))
+    process.env[key] = interpolatedValue
   }
 }
