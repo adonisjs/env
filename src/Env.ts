@@ -20,6 +20,9 @@ import { EnvContract } from '@ioc:Adonis/Core/Env'
  * AdonisJs automatically reads and passes the contents of `.env` file to this class.
  */
 export class Env implements EnvContract {
+  constructor (private cache: boolean = false) {
+  }
+
   /**
    *  Cached value of any environement variables to avoid
    *  multiple call to `process.env`.
@@ -194,7 +197,7 @@ export class Env implements EnvContract {
       if (process.env[key] === undefined || overwrite) {
         const interpolatedValue = this.interpolate(envCollection[key], envCollection)
         process.env[key] = interpolatedValue
-        this.cachedValue.set(key, this.castValue(interpolatedValue))
+        this.cache && this.cachedValue.set(key, this.castValue(interpolatedValue))
       }
     })
   }
@@ -222,7 +225,7 @@ export class Env implements EnvContract {
    * ```
    */
   public get (key: string, defaultValue?: any): string | boolean | null | undefined {
-    if (this.cachedValue.has(key)) {
+    if (this.cache && this.cachedValue.has(key)) {
       return this.cachedValue.get(key) as string | boolean | null | undefined
     }
 
@@ -276,8 +279,7 @@ export class Env implements EnvContract {
    */
   public set (key: string, value: string): void {
     const interpolatedValue = this.interpolate(value, {})
-
-    this.cachedValue.set(key, this.castValue(interpolatedValue))
+    this.cache && this.cachedValue.set(key, this.castValue(interpolatedValue))
     process.env[key] = interpolatedValue
   }
 }
