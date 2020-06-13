@@ -52,4 +52,40 @@ test.group('Env loader', (group) => {
     assert.equal(envContents, 'PORT=3000')
     assert.equal(testEnvContent, '')
   })
+
+  test('load alternate .env.development when exists and NODE_ENV = development', async (assert) => {
+    process.env.NODE_ENV = 'development'
+
+    await fs.add('.env', 'PORT=3000')
+    await fs.add('.env.development', 'PORT=5000')
+
+    const { envContents, testEnvContent } = envLoader(fs.basePath)
+    assert.equal(envContents, 'PORT=3000')
+    assert.equal(testEnvContent, 'PORT=5000')
+
+    delete process.env.NODE_ENV
+  })
+
+  test('do not load .env.development when exists and NODE_ENV != development', async (assert) => {
+    await fs.add('.env', 'PORT=3000')
+    await fs.add('.env.development', 'PORT=5000')
+
+    const { envContents, testEnvContent } = envLoader(fs.basePath)
+    assert.equal(envContents, 'PORT=3000')
+    assert.equal(testEnvContent, '')
+
+    delete process.env.NODE_ENV
+  })
+
+  test('do not load alternate .env.development when NODE_ENV = undefined', async (assert) => {
+    process.env.NODE_ENV = undefined
+    await fs.add('.env', 'PORT=3000')
+    await fs.add('.env.development', 'PORT=5000')
+
+    const { envContents, testEnvContent } = envLoader(fs.basePath)
+    assert.equal(envContents, 'PORT=3000')
+    assert.equal(testEnvContent, '')
+
+    delete process.env.NODE_ENV
+  })
 })

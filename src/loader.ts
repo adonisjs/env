@@ -41,11 +41,15 @@ export function envLoader (appRoot: string): { envContents: string, testEnvConte
   const envContents = loadFile(absPath, process.env.ENV_SILENT === 'true')
 
   /**
-   * Optionally loading the `.env.testing` file in test environment
+   * Optionally load an alternate environment 
+   * .env.testing or .env.development (or any other) for example,
+   * if specified by NODE_ENV
    */
   let testEnvContent = ''
-  if (process.env.NODE_ENV === 'testing') {
-    testEnvContent = loadFile(join(appRoot, '.env.testing'), true)
+  let envFile = ''
+  if (process.env.NODE_ENV !== undefined && process.env.NODE_ENV !== '') {
+    envFile = '.env.' + process.env.NODE_ENV
+    testEnvContent = loadFile(join(appRoot, envFile), true)
   }
 
   return { testEnvContent, envContents }
