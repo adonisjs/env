@@ -88,4 +88,15 @@ test.group('Env loader', (group) => {
 
     delete process.env.NODE_ENV
   })
+
+  test('load .env when exists and .env.development does not and NODE_ENV=development', async (assert) => {
+    process.env.NODE_ENV = 'development'
+    await fs.add('.env', 'PORT=3000')
+
+    const { envContents, testEnvContent } = envLoader(fs.basePath)
+    assert.equal(envContents, 'PORT=3000')
+    assert.equal(testEnvContent, '')
+
+    delete process.env.NODE_ENV
+  })
 })
