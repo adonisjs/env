@@ -33,19 +33,19 @@
     "@adonisjs/mrm-preset": "^2.3.0",
     "@poppinss/dev-utils": "^1.0.6",
     "@types/dotenv": "^8.2.0",
-    "@types/node": "^14.0.1",
+    "@types/node": "^14.0.13",
     "commitizen": "^4.1.2",
     "cz-conventional-changelog": "^3.2.0",
-    "del-cli": "^3.0.0",
+    "del-cli": "^3.0.1",
     "doctoc": "^1.4.0",
-    "eslint": "^7.0.0",
+    "eslint": "^7.2.0",
     "eslint-plugin-adonis": "^1.0.10",
     "husky": "^4.2.5",
-    "japa": "^3.0.1",
-    "mrm": "^2.3.0",
-    "np": "^5.2.1",
-    "ts-node": "^8.10.1",
-    "typescript": "^3.9.2"
+    "japa": "^3.1.1",
+    "mrm": "^2.3.3",
+    "np": "^6.2.4",
+    "ts-node": "^8.10.2",
+    "typescript": "^3.9.5"
   },
   "nyc": {
     "exclude": [
@@ -71,7 +71,7 @@
     "anyBranch": false
   },
   "dependencies": {
-    "@poppinss/utils": "^2.2.6",
+    "@poppinss/utils": "^2.2.7",
     "dotenv": "^8.2.0"
   },
   "directories": {
