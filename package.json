@@ -1,6 +1,6 @@
 {
 	"name": "@adonisjs/env",
-	"version": "1.0.17",
+	"version": "1.0.18",
 	"description": "Environment variable manager for Node.js",
 	"main": "build/providers/EnvProvider.js",
 	"files": [
