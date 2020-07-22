@@ -1,89 +1,96 @@
 {
-  "name": "@adonisjs/env",
-  "version": "1.0.17",
-  "description": "Environment variable manager for Node.js",
-  "main": "build/providers/EnvProvider.js",
-  "files": [
-    "build/adonis-typings",
-    "build/providers",
-    "build/src",
-    "build/standalone.d.ts",
-    "build/standalone.js"
-  ],
-  "scripts": {
-    "mrm": "mrm --preset=@adonisjs/mrm-preset",
-    "pretest": "npm run lint",
-    "test": "node japaFile.js",
-    "lint": "eslint . --ext=.ts",
-    "clean": "del build",
-    "compile": "npm run lint && npm run clean && tsc",
-    "build": "npm run compile",
-    "commit": "git-cz",
-    "release": "np",
-    "version": "npm run build"
-  },
-  "keywords": [
-    "env",
-    "adonisjs"
-  ],
-  "author": "virk,adonisjs",
-  "license": "MIT",
-  "devDependencies": {
-    "@adonisjs/fold": "^6.3.5",
-    "@adonisjs/mrm-preset": "^2.3.0",
-    "@poppinss/dev-utils": "^1.0.6",
-    "@types/dotenv": "^8.2.0",
-    "@types/node": "^14.0.13",
-    "commitizen": "^4.1.2",
-    "cz-conventional-changelog": "^3.2.0",
-    "del-cli": "^3.0.1",
-    "doctoc": "^1.4.0",
-    "eslint": "^7.2.0",
-    "eslint-plugin-adonis": "^1.0.10",
-    "husky": "^4.2.5",
-    "japa": "^3.1.1",
-    "mrm": "^2.3.3",
-    "np": "^6.2.4",
-    "ts-node": "^8.10.2",
-    "typescript": "^3.9.5"
-  },
-  "nyc": {
-    "exclude": [
-      "test"
-    ],
-    "extension": [
-      ".ts"
-    ]
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "doctoc README.md --title='## Table of contents' && git add README.md",
-      "commit-msg": "node ./node_modules/@adonisjs/mrm-preset/validateCommit/conventional/validate.js"
-    }
-  },
-  "config": {
-    "commitizen": {
-      "path": "cz-conventional-changelog"
-    }
-  },
-  "np": {
-    "contents": ".",
-    "anyBranch": false
-  },
-  "dependencies": {
-    "@poppinss/utils": "^2.2.7",
-    "dotenv": "^8.2.0"
-  },
-  "directories": {
-    "doc": "docs",
-    "test": "test"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/adonisjs/env.git"
-  },
-  "bugs": {
-    "url": "https://github.com/adonisjs/env/issues"
-  },
-  "homepage": "https://github.com/adonisjs/env#readme"
+	"name": "@adonisjs/env",
+	"version": "1.0.17",
+	"description": "Environment variable manager for Node.js",
+	"main": "build/providers/EnvProvider.js",
+	"files": [
+		"build/adonis-typings",
+		"build/providers",
+		"build/src",
+		"build/standalone.d.ts",
+		"build/standalone.js"
+	],
+	"scripts": {
+		"mrm": "mrm --preset=@adonisjs/mrm-preset",
+		"pretest": "npm run lint",
+		"test": "node japaFile.js",
+		"clean": "del build",
+		"compile": "npm run lint && npm run clean && tsc",
+		"build": "npm run compile",
+		"commit": "git-cz",
+		"release": "np",
+		"version": "npm run build",
+		"prepublishOnly": "npm run build",
+		"lint": "eslint . --ext=.ts",
+		"format": "prettier --write .",
+		"sync-labels": "github-label-sync --labels ./node_modules/@adonisjs/mrm-preset/gh-labels.json adonisjs/env"
+	},
+	"keywords": [
+		"env",
+		"adonisjs"
+	],
+	"author": "virk,adonisjs",
+	"license": "MIT",
+	"devDependencies": {
+		"@adonisjs/fold": "^6.3.5",
+		"@adonisjs/mrm-preset": "^2.4.0",
+		"@poppinss/dev-utils": "^1.0.8",
+		"@types/dotenv": "^8.2.0",
+		"@types/node": "^14.0.24",
+		"commitizen": "^4.1.2",
+		"cz-conventional-changelog": "^3.2.0",
+		"del-cli": "^3.0.1",
+		"eslint": "^7.5.0",
+		"eslint-config-prettier": "^6.11.0",
+		"eslint-plugin-adonis": "^1.0.10",
+		"eslint-plugin-prettier": "^3.1.4",
+		"github-label-sync": "^2.0.0",
+		"husky": "^4.2.5",
+		"japa": "^3.1.1",
+		"mrm": "^2.3.3",
+		"np": "^6.2.4",
+		"npm-audit-html": "^1.4.1",
+		"prettier": "^2.0.5",
+		"ts-node": "^8.10.2",
+		"typescript": "^3.9.7"
+	},
+	"nyc": {
+		"exclude": [
+			"test"
+		],
+		"extension": [
+			".ts"
+		]
+	},
+	"husky": {
+		"hooks": {
+			"pre-commit": "npm audit --production --json | ./node_modules/.bin/npm-audit-html && git add npm-audit.html",
+			"commit-msg": "node ./node_modules/@adonisjs/mrm-preset/validateCommit/conventional/validate.js"
+		}
+	},
+	"config": {
+		"commitizen": {
+			"path": "cz-conventional-changelog"
+		}
+	},
+	"np": {
+		"contents": ".",
+		"anyBranch": false
+	},
+	"dependencies": {
+		"@poppinss/utils": "^2.3.0",
+		"dotenv": "^8.2.0"
+	},
+	"directories": {
+		"doc": "docs",
+		"test": "test"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/adonisjs/env.git"
+	},
+	"bugs": {
+		"url": "https://github.com/adonisjs/env/issues"
+	},
+	"homepage": "https://github.com/adonisjs/env#readme"
 }
