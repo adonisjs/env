@@ -9,9 +9,6 @@
 
 import { IocContract } from '@adonisjs/fold'
 
-import { Env } from '../src/Env'
-import { envLoader } from '../src/loader'
-
 /**
  * The AdonisJs provider to register the binding to the container
  */
@@ -23,8 +20,10 @@ export default class EnvProvider {
 	 */
 	public register() {
 		this.container.singleton('Adonis/Core/Env', () => {
-			const env = new Env()
+			const { Env } = require('../src/Env')
+			const { envLoader } = require('../src/loader')
 
+			const env = new Env()
 			const app = this.container.use('Adonis/Core/Application')
 			const { envContents, testEnvContent } = envLoader(app.appRoot)
 
