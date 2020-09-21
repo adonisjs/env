@@ -35,25 +35,25 @@
 		"@adonisjs/application": "^2.0.0",
 		"@adonisjs/fold": "^6.3.5",
 		"@adonisjs/mrm-preset": "^2.4.0",
-		"@poppinss/dev-utils": "^1.0.8",
+		"@adonisjs/require-ts": "^1.0.0",
+		"@poppinss/dev-utils": "^1.0.10",
 		"@types/dotenv": "^8.2.0",
-		"@types/node": "^14.0.24",
-		"commitizen": "^4.1.2",
-		"cz-conventional-changelog": "^3.2.0",
+		"@types/node": "^14.11.1",
+		"commitizen": "^4.2.1",
+		"cz-conventional-changelog": "^3.3.0",
 		"del-cli": "^3.0.1",
-		"eslint": "^7.5.0",
+		"eslint": "^7.9.0",
 		"eslint-config-prettier": "^6.11.0",
-		"eslint-plugin-adonis": "^1.0.10",
+		"eslint-plugin-adonis": "^1.0.15",
 		"eslint-plugin-prettier": "^3.1.4",
 		"github-label-sync": "^2.0.0",
-		"husky": "^4.2.5",
+		"husky": "^4.3.0",
 		"japa": "^3.1.1",
-		"mrm": "^2.3.3",
-		"np": "^6.2.4",
-		"npm-audit-html": "^1.4.1",
-		"prettier": "^2.0.5",
-		"ts-node": "^8.10.2",
-		"typescript": "^3.9.7"
+		"mrm": "^2.5.0",
+		"np": "^6.5.0",
+		"npm-audit-html": "^1.4.3",
+		"prettier": "^2.1.2",
+		"typescript": "^4.0.3"
 	},
 	"nyc": {
 		"exclude": [
@@ -79,7 +79,7 @@
 		"anyBranch": false
 	},
 	"dependencies": {
-		"@poppinss/utils": "^2.3.0",
+		"@poppinss/utils": "^2.5.7",
 		"dotenv": "^8.2.0"
 	},
 	"directories": {
