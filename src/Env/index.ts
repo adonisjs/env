@@ -11,7 +11,7 @@
 
 import { DotenvParseOutput } from 'dotenv'
 import { EnvContract, ValidateFn } from '@ioc:Adonis/Core/Env'
-import { schema } from '../Schema'
+import { schema as EnvSchema } from '../Schema'
 
 /**
  * The ENV module enables the use of environment variables by parsing dotfiles syntax
@@ -44,7 +44,7 @@ export class Env implements EnvContract {
 	/**
 	 * Reference to the underlying schema
 	 */
-	public schema = schema
+	public schema = EnvSchema
 
 	/**
 	 * Process parsed env variables. The values will be validated
