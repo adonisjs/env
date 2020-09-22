@@ -80,7 +80,8 @@
 	},
 	"dependencies": {
 		"@poppinss/utils": "^2.5.7",
-		"dotenv": "^8.2.0"
+		"dotenv": "^8.2.0",
+		"validator": "^13.1.17"
 	},
 	"directories": {
 		"doc": "docs",

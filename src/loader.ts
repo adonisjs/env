@@ -24,7 +24,7 @@ function loadFile(filePath: string, optional: boolean = false): string {
 		}
 
 		if (!optional) {
-			throw new Exception(`The ${filePath} file is missing`, 500, 'E_MISSING_ENV_FILE')
+			throw new Exception(`The "${filePath}" file is missing`, 500, 'E_MISSING_ENV_FILE')
 		}
 	}
 
@@ -38,7 +38,7 @@ export function envLoader(appRoot: string): { envContents: string; testEnvConten
 	const envPath = process.env.ENV_PATH || '.env'
 	const absPath = isAbsolute(envPath) ? envPath : join(appRoot, envPath)
 
-	const envContents = loadFile(absPath, process.env.ENV_SILENT === 'true')
+	const envContents = loadFile(absPath, !!process.env.ENV_SILENT)
 
 	/**
 	 * Optionally loading the `.env.testing` file in test environment

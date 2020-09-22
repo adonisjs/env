@@ -27,6 +27,8 @@ test.group('Env Provider', () => {
 
 		assert.instanceOf(ioc.use('Adonis/Core/Env'), Env)
 		assert.deepEqual(ioc.use('Adonis/Core/Env'), ioc.use('Adonis/Core/Env'))
+
+		ioc.use('Adonis/Core/Env').process()
 		assert.equal(ioc.use('Adonis/Core/Env').get('ENV_APP_NAME'), 'adonisjs')
 	})
 
@@ -41,6 +43,6 @@ test.group('Env Provider', () => {
 		await registrar.useProviders(['./providers/EnvProvider']).registerAndBoot()
 
 		const fn = () => ioc.use('Adonis/Core/Env')
-		assert.throw(fn, `E_MISSING_ENV_FILE: The ${join(__dirname, '.env')} file is missing`)
+		assert.throw(fn, `E_MISSING_ENV_FILE: The "${join(__dirname, '.env')}" file is missing`)
 	})
 })

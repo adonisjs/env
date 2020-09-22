@@ -9,187 +9,182 @@
 
 import test from 'japa'
 import { Env } from '../src/Env'
+import { schema } from '../src/Schema'
 
 test.group('Env', (group) => {
-	group.afterEach(async () => {
-		delete process.env.ENV_SILENT
-		delete process.env.loadDb
-		delete process.env.ENV_PATH
-		delete process.env.APP_USERNAME
+	group.afterEach(() => {
+		delete process.env.ENV_PORT
+		delete process.env.ENV_HOST
 	})
 
-	test('parse env string', async (assert) => {
-		const env = new Env()
-		env.process(`
-      APP_USERNAME = 'virk'
-    `)
+	test('process parsed environment variables', (assert) => {
+		const env = new Env([
+			{
+				values: {
+					ENV_PORT: '3333',
+					ENV_HOST: '0.0.0.0',
+				},
+				overwriteExisting: false,
+			},
+		])
 
-		assert.equal(env.get('APP_USERNAME'), 'virk')
+		env.process()
+
+		assert.deepEqual(process.env.ENV_PORT, '3333')
+		assert.deepEqual(process.env.ENV_HOST, '0.0.0.0')
 	})
 
-	test('do not overwrite existing process.env values', async (assert) => {
-		process.env.APP_USERNAME = 'virk'
+	test('do not overwrite existing env values', (assert) => {
+		process.env.ENV_PORT = '4000'
 
-		const env = new Env()
-		env.process(`
-      APP_USERNAME = 'nikk'
-    `)
+		const env = new Env([
+			{
+				values: {
+					ENV_PORT: '3333',
+					ENV_HOST: '0.0.0.0',
+				},
+				overwriteExisting: false,
+			},
+		])
 
-		assert.equal(env.get('APP_USERNAME'), 'virk')
+		env.process()
+
+		assert.deepEqual(process.env.ENV_PORT, '4000')
+		assert.deepEqual(process.env.ENV_HOST, '0.0.0.0')
 	})
 
-	test('cast string true to boolean true', async (assert) => {
-		const env = new Env()
-		env.process(`
-      loadDb=true
-    `)
-		assert.isTrue(env.get('loadDb'))
+	test('env.get should pull values from cache (if exists)', (assert) => {
+		process.env.ENV_PORT = '4000'
+
+		const env = new Env([])
+		env.process()
+
+		/**
+		 * No cache
+		 */
+		assert.equal(env.get('ENV_PORT'), '4000')
+
+		/**
+		 * Mutated value will be ignored and cache is used
+		 */
+		process.env.ENV_PORT = '5000'
+		assert.equal(env.get('ENV_PORT'), '4000')
 	})
 
-	test('cast null string to null', async (assert) => {
-		const env = new Env()
-		env.process(`
-      loadDb=null
-    `)
-		assert.isNull(env.get('loadDb'))
-	})
+	test('validate values against the defined rules', (assert) => {
+		const env = new Env([
+			{
+				values: { ENV_PORT: 'foo' },
+				overwriteExisting: false,
+			},
+		])
+		env.rules({ ENV_PORT: schema.number() })
+		const fn = () => env.process()
 
-	test('return undefined when value is missing', async (assert) => {
-		const env = new Env()
-		assert.isUndefined(env.get('loadDb'))
-	})
-
-	test('raise error when using getOrFail and value is undefined', async (assert) => {
-		const env = new Env()
-		const fn = () => env.getOrFail('loadDb')
-		assert.throw(fn, 'E_MISSING_ENV_KEY: Make sure to define environment variable loadDb')
-	})
-
-	test('raise error when using getOrFail and value is not existy', async (assert) => {
-		const env = new Env()
-		env.process(`
-      loadDb=null
-    `)
-
-		const fn = () => env.getOrFail('loadDb')
-		assert.throw(fn, 'E_MISSING_ENV_KEY: Make sure to define environment variable loadDb')
-	})
-
-	test('do not raise error when using getOrFail and value is false', async (assert) => {
-		const env = new Env()
-		env.process(`
-      loadDb=false
-    `)
-		assert.isFalse(env.getOrFail('loadDb'))
-	})
-
-	test('overwrite exsting env values', async (assert) => {
-		const env = new Env()
-		env.process(`
-      APP_USERNAME=nikk
-    `)
-		env.process(
-			`
-      APP_USERNAME=virk
-    `,
-			true
+		assert.throw(
+			fn,
+			'E_INVALID_ENV_VALUE: Value for environment variable "ENV_PORT" must be numeric'
 		)
-		assert.equal(env.get('APP_USERNAME'), 'virk')
 	})
 
-	test('update value inside process.env', async (assert) => {
-		const env = new Env()
-		env.set('loadDb', 'false')
-		assert.isFalse(env.get('loadDb'))
+	test('validate pre-existing values against the defined rules', (assert) => {
+		process.env.ENV_PORT = 'foo'
+		const env = new Env([
+			{
+				values: { ENV_PORT: '3333' },
+				overwriteExisting: false,
+			},
+		])
+
+		env.rules({ ENV_PORT: schema.number() })
+		const fn = () => env.process()
+
+		assert.throw(
+			fn,
+			'E_INVALID_ENV_VALUE: Value for environment variable "ENV_PORT" must be numeric'
+		)
 	})
 
-	test('interpolate values properly', async (assert) => {
-		const env = new Env()
-		process.env.USER = 'virk'
+	test('overwrite existing process.env value when "overwriteExisting = true"', (assert) => {
+		process.env.ENV_PORT = 'foo'
+		const env = new Env([
+			{
+				values: { ENV_PORT: '3333' },
+				overwriteExisting: true,
+			},
+		])
 
-		const envString = [
-			'PORT=3333',
-			'HOST=127.0.0.1',
-			'URL=http://$HOST:$PORT',
-			'PASSWORD=pa\\$\\$word',
-			'PRICE=\\$2.99',
-			'NEW_PRICE=2.99\\$',
-			'REDIS_HOST=$HOST',
-			'REDIS-USER=$USER',
-			'REDIS_PASSWORD=$PASSWORD',
-			'REDIS_URL=$REDIS_HOST://${REDIS-USER}@$REDIS_PASSWORD',
-		].join('\n')
+		env.rules({ ENV_PORT: schema.number() })
+		env.process()
 
-		env.process(envString)
-
-		assert.equal(env.get('PORT'), '3333')
-		assert.equal(env.get('HOST'), '127.0.0.1')
-		assert.equal(env.get('URL'), 'http://127.0.0.1:3333')
-		assert.equal(env.get('PASSWORD'), 'pa$$word')
-		assert.equal(env.get('PRICE'), '$2.99')
-		assert.equal(env.get('NEW_PRICE'), '2.99$')
-		assert.equal(env.get('REDIS_HOST'), '127.0.0.1')
-		assert.equal(env.get('REDIS-USER'), 'virk')
-		assert.equal(env.get('REDIS_PASSWORD'), 'pa$$word')
-		assert.equal(env.get('REDIS_URL'), '127.0.0.1://virk@pa$$word')
-
-		delete process.env['USER']
-		delete process.env['PORT']
-		delete process.env['HOST']
-		delete process.env['URL']
-		delete process.env['PASSWORD']
-		delete process.env['PRICE']
-		delete process.env['NEW_PRICE']
-		delete process.env['REDIS_HOST']
-		delete process.env['REDIS-USER']
-		delete process.env['REDIS_PASSWORD']
-		delete process.env['REDIS_URL']
+		assert.deepEqual(env.get('ENV_PORT'), 3333)
 	})
 
-	test('interpolate when calling env.set', async (assert) => {
-		const env = new Env()
+	test('validate pre-existing value when parsed value is missing', (assert) => {
+		process.env.ENV_PORT = 'foo'
+		const env = new Env([])
+		env.rules({ ENV_PORT: schema.number() })
+		const fn = () => env.process()
 
-		env.process(['PORT=3333', 'HOST=127.0.0.1'].join('\n'))
-
-		assert.equal(env.get('PORT'), '3333')
-		assert.equal(env.get('HOST'), '127.0.0.1')
-
-		env.set('URL', 'http://$HOST:$PORT')
-		assert.equal(env.get('URL'), 'http://127.0.0.1:3333')
-
-		delete process.env['PORT']
-		delete process.env['HOST']
-		delete process.env['URL']
+		assert.throw(
+			fn,
+			'E_INVALID_ENV_VALUE: Value for environment variable "ENV_PORT" must be numeric'
+		)
 	})
 
-	test('interpolate values during parse', async (assert) => {
-		const env = new Env()
-		process.env.USER = 'virk'
+	test('validate for non-existing value', (assert) => {
+		const env = new Env([])
+		env.rules({ ENV_PORT: schema.number() })
+		const fn = () => env.process()
 
-		const envString = [
-			'PORT=3333',
-			'HOST=127.0.0.1',
-			'URL=http://$HOST:$PORT',
-			'PASSWORD=pa\\$\\$word',
-			'PRICE=\\$2.99',
-			'NEW_PRICE=2.99\\$',
-			'REDIS_HOST=$HOST',
-			'REDIS-USER=$USER',
-			'REDIS_PASSWORD=$PASSWORD',
-			'REDIS_URL=$REDIS_HOST://${REDIS-USER}@$REDIS_PASSWORD',
-		].join('\n')
+		assert.throw(fn, 'E_MISSING_ENV_VALUE: Missing environment variable "ENV_PORT"')
+	})
 
-		assert.deepEqual(env.parse(envString), {
-			'PORT': '3333',
-			'HOST': '127.0.0.1',
-			'URL': 'http://127.0.0.1:3333',
-			'PASSWORD': 'pa$$word',
-			'PRICE': '$2.99',
-			'NEW_PRICE': '2.99$',
-			'REDIS_HOST': '127.0.0.1',
-			'REDIS-USER': 'virk',
-			'REDIS_PASSWORD': 'pa$$word',
-			'REDIS_URL': '127.0.0.1://virk@pa$$word',
-		})
+	test('return mutated value when validation succeeds', (assert) => {
+		const env = new Env([
+			{
+				values: { ENV_PORT: '3333' },
+				overwriteExisting: false,
+			},
+		])
+		env.rules({ ENV_PORT: schema.number() })
+		env.process()
+
+		assert.deepEqual(env.get('ENV_PORT'), 3333)
+	})
+
+	test('return mutated value when validation succeeds for pre-existing value', (assert) => {
+		process.env.ENV_PORT = '3333'
+		const env = new Env([
+			{
+				values: { ENV_PORT: 'foo' },
+				overwriteExisting: false,
+			},
+		])
+		env.rules({ ENV_PORT: schema.number() })
+		env.process()
+
+		assert.deepEqual(env.get('ENV_PORT'), 3333)
+	})
+
+	test('validate value when mutating using "env.set"', (assert) => {
+		process.env.ENV_PORT = '3333'
+		const env = new Env([
+			{
+				values: { ENV_PORT: 'foo' },
+				overwriteExisting: false,
+			},
+		])
+
+		env.rules({ ENV_PORT: schema.number() })
+		env.process()
+
+		assert.deepEqual(env.get('ENV_PORT'), 3333)
+
+		const fn = () => env.set('ENV_PORT', 'foo')
+		assert.throw(
+			fn,
+			'E_INVALID_ENV_VALUE: Value for environment variable "ENV_PORT" must be numeric'
+		)
 	})
 })
