@@ -7,9 +7,6 @@
  * file that was distributed with this source code.
  */
 
-import { Env } from './src/Env'
-
-/**
- * Returns a singleton of `env` as named `Env` export.
- */
-export const env = new Env([])
+export { Env } from './src/Env'
+export { EnvParser } from './src/Parser'
+export { envLoader } from './src/loader'
