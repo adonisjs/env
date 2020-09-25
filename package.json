@@ -31,8 +31,6 @@
 	"author": "virk,adonisjs",
 	"license": "MIT",
 	"devDependencies": {
-		"@adonisjs/application": "^2.0.0",
-		"@adonisjs/fold": "^6.3.5",
 		"@adonisjs/mrm-preset": "^2.4.0",
 		"@adonisjs/require-ts": "^1.0.0",
 		"@poppinss/dev-utils": "^1.0.10",
