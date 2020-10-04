@@ -19,9 +19,10 @@ test.group('Env loader', (group) => {
 		await fs.cleanup()
 	})
 
-	test('raise exception when .env file is missing', async (assert) => {
-		const fn = () => envLoader(fs.basePath)
-		assert.throw(fn, `E_MISSING_ENV_FILE: The "${join(fs.basePath, '.env')}" file is missing`)
+	test('do not raise exception when .env file is missing', async (assert) => {
+		const { envContents, testEnvContent } = envLoader(fs.basePath)
+		assert.equal(envContents, '')
+		assert.equal(testEnvContent, '')
 	})
 
 	test('load and return contents of .env file', async (assert) => {

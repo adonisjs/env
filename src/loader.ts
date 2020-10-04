@@ -38,7 +38,7 @@ export function envLoader(appRoot: string): { envContents: string; testEnvConten
 	const envPath = process.env.ENV_PATH || '.env'
 	const absPath = isAbsolute(envPath) ? envPath : join(appRoot, envPath)
 
-	const envContents = loadFile(absPath, !!process.env.ENV_SILENT)
+	const envContents = loadFile(absPath, true)
 
 	/**
 	 * Optionally loading the `.env.testing` file in test environment
