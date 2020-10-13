@@ -108,6 +108,13 @@ declare module '@ioc:Adonis/Core/Env' {
 		get(key: string, defaultValue?: any): any
 
 		/**
+		 * Alias for [[get]]
+		 * @deprecated
+		 */
+		getOrFail<K extends keyof EnvTypes>(key: K, defaultValue?: EnvTypes[K]): EnvTypes[K]
+		getOrFail(key: string, defaultValue?: any): any
+
+		/**
 		 * Update/set value for a given environment variable. Ideally one should
 		 * avoid updating values during runtime
 		 */
