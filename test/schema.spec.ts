@@ -93,8 +93,9 @@ test.group('schema | string.optional', () => {
 	})
 
 	test('validate value as an host', (assert) => {
-		const fn = () => schema.string({ format: 'host' })('HOST', 'foo')
+		const fn = () => schema.string({ format: 'host' })('HOST', 'foo:bar')
 		assert.throw(fn, 'Value for environment variable "HOST" must be a valid (domain or ip)')
+		assert.equal(schema.string({ format: 'host' })('HOST', 'localhost'), 'localhost')
 		assert.equal(schema.string({ format: 'host' })('HOST', '127.0.0.1'), '127.0.0.1')
 		assert.equal(schema.string({ format: 'host' })('HOST', 'adonisjs.dev'), 'adonisjs.dev')
 	})

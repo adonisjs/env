@@ -32,7 +32,10 @@ const formats: {
 		}
 	},
 	host: (key: string, value: string, message?: string) => {
-		if (!require('validator/lib/isFQDN')(value) && !require('validator/lib/isIP')(value)) {
+		if (
+			!require('validator/lib/isFQDN')(value, { require_tld: false }) &&
+			!require('validator/lib/isIP')(value)
+		) {
 			throw new Exception(
 				message || `Value for environment variable "${key}" must be a valid (domain or ip)`,
 				500,
