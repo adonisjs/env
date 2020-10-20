@@ -106,7 +106,7 @@ export class Env implements EnvContract {
 				errors.push((err as Exception).message)
 			}
 		})
-		throw new Exception(errors.join(EOL), 500)
+		if (errors.length > 0) throw new Exception(errors.join(EOL), 500)
 	}
 
 	/**
