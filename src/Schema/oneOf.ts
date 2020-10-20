@@ -44,7 +44,10 @@ function ensureOneOf(choices: any[], key: string, value: any, message?: string) 
 	 * Otherwise raise exception
 	 */
 	throw new Exception(
-		message || `Value for environment variable "${key}" must be one of "${choices.join(',')}"`,
+		message ||
+			`Value for environment variable "${key}" must be one of "${choices.join(
+				','
+			)}", instead received "${value}"`,
 		500,
 		'E_INVALID_ENV_VALUE'
 	)

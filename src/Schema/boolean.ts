@@ -24,7 +24,8 @@ function castToBoolean(key: string, value: string, message?: string): boolean {
 	}
 
 	throw new Exception(
-		message || `Value for environment variable "${key}" must be a boolean`,
+		message ||
+			`Value for environment variable "${key}" must be a boolean, instead received "${value}"`,
 		500,
 		'E_INVALID_ENV_VALUE'
 	)

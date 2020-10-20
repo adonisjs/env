@@ -25,7 +25,8 @@ const formats: {
 	email: (key: string, value: string, message?: string) => {
 		if (!require('validator/lib/isEmail')(value)) {
 			throw new Exception(
-				message || `Value for environment variable "${key}" must be a valid email`,
+				message ||
+					`Value for environment variable "${key}" must be a valid email, instead received "${value}"`,
 				500,
 				'E_INVALID_ENV_VALUE'
 			)
@@ -37,7 +38,8 @@ const formats: {
 			!require('validator/lib/isIP')(value)
 		) {
 			throw new Exception(
-				message || `Value for environment variable "${key}" must be a valid (domain or ip)`,
+				message ||
+					`Value for environment variable "${key}" must be a valid (domain or ip), instead received "${value}"`,
 				500,
 				'E_INVALID_ENV_VALUE'
 			)
@@ -46,7 +48,8 @@ const formats: {
 	url: (key: string, value: string, message?: string) => {
 		if (!require('validator/lib/isURL')(value)) {
 			throw new Exception(
-				message || `Value for environment variable "${key}" must be a valid URL`,
+				message ||
+					`Value for environment variable "${key}" must be a valid URL, instead received "${value}"`,
 				500,
 				'E_INVALID_ENV_VALUE'
 			)

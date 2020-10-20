@@ -19,7 +19,8 @@ export function castToNumber(key: string, value: string, message?: string): numb
 	const castedValue = Number(value)
 	if (isNaN(castedValue)) {
 		throw new Exception(
-			message || `Value for environment variable "${key}" must be numeric`,
+			message ||
+				`Value for environment variable "${key}" must be numeric, instead received "${value}"`,
 			500,
 			'E_INVALID_ENV_VALUE'
 		)
