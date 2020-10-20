@@ -12,6 +12,8 @@
 import { DotenvParseOutput } from 'dotenv'
 import { EnvContract, ValidateFn } from '@ioc:Adonis/Core/Env'
 import { schema as EnvSchema } from '../Schema'
+import { Exception } from '@poppinss/utils'
+import { EOL } from 'os'
 
 /**
  * The ENV module enables the use of environment variables by parsing dotfiles syntax
@@ -96,9 +98,15 @@ export class Env implements EnvContract {
 		/**
 		 * Perform validations by reading the environment variables
 		 */
+		const errors: string[] = []
 		Object.keys(this.validationSchema).forEach((key) => {
-			this.envCache[key] = this.validationSchema[key](key, this.get(key))
+			try {
+				this.envCache[key] = this.validationSchema[key](key, this.get(key))
+			} catch (err) {
+				errors.push((err as Exception).message)
+			}
 		})
+		throw new Exception(errors.join(EOL), 500)
 	}
 
 	/**
