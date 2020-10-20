@@ -104,7 +104,11 @@ declare module '@ioc:Adonis/Core/Env' {
 		/**
 		 * Get value for a given environment variable
 		 */
-		get<K extends keyof EnvTypes>(key: K, defaultValue?: EnvTypes[K]): EnvTypes[K]
+		get<K extends keyof EnvTypes>(key: K): EnvTypes[K]
+		get<K extends keyof EnvTypes>(
+			key: K,
+			defaultValue: Exclude<EnvTypes[K], undefined>
+		): Exclude<EnvTypes[K], undefined>
 		get(key: string, defaultValue?: any): any
 
 		/**
