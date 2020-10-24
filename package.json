@@ -93,6 +93,6 @@
 	"homepage": "https://github.com/adonisjs/env#readme",
 	"publishConfig": {
 		"access": "public",
-		"tag": "next"
+		"tag": "latest"
 	}
 }
