@@ -100,12 +100,36 @@ test.group('schema | string.optional', () => {
 		assert.equal(schema.string({ format: 'host' })('HOST', 'adonisjs.dev'), 'adonisjs.dev')
 	})
 
-	test('validate value as a url', (assert) => {
-		const fn = () => schema.string({ format: 'url' })('MAILGUN_URL', 'foo')
+	test('validate value as a url (strict defaults)', (assert) => {
+		const fn = () => schema.string({ format: 'url' })('MAILGUN_URL', 'foo.com')
 		assert.throw(fn, 'Value for environment variable "MAILGUN_URL" must be a valid URL')
+		const fnTld = () =>
+			schema.string({ format: 'url' })('MAILGUN_URL', 'https://mailgun-service:1234/v1')
+		assert.throw(fnTld, 'Value for environment variable "MAILGUN_URL" must be a valid URL')
 		assert.equal(
 			schema.string({ format: 'url' })('MAILGUN_URL', 'https://api.mailgun.net/v1'),
 			'https://api.mailgun.net/v1'
+		)
+	})
+
+	test('validate value as a url (loose options)', (assert) => {
+		assert.equal(
+			schema.string({ format: 'url', protocol: false })('MAILGUN_URL', 'foo.com'),
+			'foo.com'
+		)
+		assert.equal(
+			schema.string({ format: 'url', tld: false })(
+				'MAILGUN_URL',
+				'https://mailgun-service:1234/v1'
+			),
+			'https://mailgun-service:1234/v1'
+		)
+		assert.equal(
+			schema.string({ format: 'url', protocol: false, tld: false })(
+				'MAILGUN_URL',
+				'mailgun:1234/v1'
+			),
+			'mailgun:1234/v1'
 		)
 	})
 })

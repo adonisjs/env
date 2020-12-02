@@ -8,7 +8,7 @@
  */
 
 import { Exception } from '@poppinss/utils'
-import { StringFnOptions } from '@ioc:Adonis/Core/Env'
+import { StringFnOptions, StringFnUrlOptions } from '@ioc:Adonis/Core/Env'
 import { ensureValue } from './helpers'
 
 /**
@@ -19,36 +19,37 @@ const formats: {
 	[format in Exclude<StringFnOptions['format'], undefined>]: (
 		key: string,
 		value: string,
-		message?: string
+		options: StringFnOptions
 	) => void
 } = {
-	email: (key: string, value: string, message?: string) => {
+	email: (key: string, value: string, options: StringFnOptions) => {
 		if (!require('validator/lib/isEmail')(value)) {
 			throw new Exception(
-				message ||
+				options.message ||
 					`Value for environment variable "${key}" must be a valid email, instead received "${value}"`,
 				500,
 				'E_INVALID_ENV_VALUE'
 			)
 		}
 	},
-	host: (key: string, value: string, message?: string) => {
+	host: (key: string, value: string, options: StringFnOptions) => {
 		if (
 			!require('validator/lib/isFQDN')(value, { require_tld: false }) &&
 			!require('validator/lib/isIP')(value)
 		) {
 			throw new Exception(
-				message ||
+				options.message ||
 					`Value for environment variable "${key}" must be a valid (domain or ip), instead received "${value}"`,
 				500,
 				'E_INVALID_ENV_VALUE'
 			)
 		}
 	},
-	url: (key: string, value: string, message?: string) => {
-		if (!require('validator/lib/isURL')(value)) {
+	url: (key: string, value: string, options: StringFnUrlOptions) => {
+		const { tld = true, protocol = true } = options
+		if (!require('validator/lib/isURL')(value, { require_tld: tld, require_protocol: protocol })) {
 			throw new Exception(
-				message ||
+				options.message ||
 					`Value for environment variable "${key}" must be a valid URL, instead received "${value}"`,
 				500,
 				'E_INVALID_ENV_VALUE'
@@ -65,7 +66,7 @@ export function string(options?: StringFnOptions) {
 		ensureValue(key, value, options?.message)
 
 		if (options?.format) {
-			formats[options.format](key, value, options.message)
+			formats[options.format](key, value, options)
 		}
 
 		return value
@@ -82,7 +83,7 @@ string.optional = function optionalString(options?: StringFnOptions) {
 		}
 
 		if (options?.format) {
-			formats[options.format](key, value, options.message)
+			formats[options.format](key, value, options)
 		}
 
 		return value

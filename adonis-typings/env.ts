@@ -28,12 +28,28 @@ declare module '@ioc:Adonis/Core/Env' {
 		message?: string
 	}
 
+	export type StringFnUrlOptions = SchemaFnOptions & {
+		format: 'url'
+		/**
+		 * Whether the URL must have a valid TLD in their domain.
+		 * Defaults to `true`.
+		 */
+		tld?: boolean
+		/**
+		 * Whether the URL must start with a valid protocol.
+		 * Defaults to `true`.
+		 */
+		protocol?: boolean
+	}
+
 	/**
 	 * Options accepted by the string schema function
 	 */
-	export type StringFnOptions = SchemaFnOptions & {
-		format?: 'host' | 'email' | 'url'
-	}
+	export type StringFnOptions =
+		| (SchemaFnOptions & {
+				format?: 'host' | 'email'
+		  })
+		| StringFnUrlOptions
 
 	/**
 	 * Shape of the number validator
