@@ -16,17 +16,17 @@ import { ensureValue } from './helpers'
  * Casts the string to a number and ensures it is no NaN
  */
 export function castToNumber(key: string, value: string, message?: string): number {
-	const castedValue = Number(value)
-	if (isNaN(castedValue)) {
-		throw new Exception(
-			message ||
-				`Value for environment variable "${key}" must be numeric, instead received "${value}"`,
-			500,
-			'E_INVALID_ENV_VALUE'
-		)
-	}
+  const castedValue = Number(value)
+  if (isNaN(castedValue)) {
+    throw new Exception(
+      message ||
+        `Value for environment variable "${key}" must be numeric, instead received "${value}"`,
+      500,
+      'E_INVALID_ENV_VALUE'
+    )
+  }
 
-	return castedValue
+  return castedValue
 }
 
 /**
@@ -34,10 +34,10 @@ export function castToNumber(key: string, value: string, message?: string): numb
  * value will also be casted to a number
  */
 export function number(options?: SchemaFnOptions) {
-	return function validate(key: string, value?: string) {
-		ensureValue(key, value, options?.message)
-		return castToNumber(key, value, options?.message)
-	}
+  return function validate(key: string, value?: string) {
+    ensureValue(key, value, options?.message)
+    return castToNumber(key, value, options?.message)
+  }
 }
 
 /**
@@ -45,10 +45,10 @@ export function number(options?: SchemaFnOptions) {
  * values
  */
 number.optional = function optionalNumber(options?: SchemaFnOptions) {
-	return function validate(key: string, value?: string) {
-		if (!value) {
-			return undefined
-		}
-		return castToNumber(key, value, options?.message)
-	}
+  return function validate(key: string, value?: string) {
+    if (!value) {
+      return undefined
+    }
+    return castToNumber(key, value, options?.message)
+  }
 }

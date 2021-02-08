@@ -23,15 +23,15 @@ export const BOOLEAN_NEGATIVES = ['0', 0, 'false', false]
  * Ensures the value to exist
  */
 export function ensureValue(
-	key: string,
-	value?: string,
-	message?: string
+  key: string,
+  value?: string,
+  message?: string
 ): asserts value is string {
-	if (!value) {
-		throw new Exception(
-			message || `Missing environment variable "${key}"`,
-			500,
-			'E_MISSING_ENV_VALUE'
-		)
-	}
+  if (!value) {
+    throw new Exception(
+      message || `Missing environment variable "${key}"`,
+      500,
+      'E_MISSING_ENV_VALUE'
+    )
+  }
 }

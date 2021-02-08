@@ -14,8 +14,8 @@ import { boolean } from './boolean'
 import { oneOf } from './oneOf'
 
 export const schema: EnvSchema = {
-	number,
-	string,
-	boolean,
-	enum: oneOf,
+  number,
+  string,
+  boolean,
+  enum: oneOf,
 }

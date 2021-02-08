@@ -35,144 +35,144 @@ import dotenv, { DotenvParseOutput } from 'dotenv'
  * ```
  */
 export class EnvParser {
-	constructor(private preferExistingEnvVariables: boolean = true) {}
+  constructor(private preferExistingEnvVariables: boolean = true) {}
 
-	/**
-	 * Returns value for a given key from the environment variables. Also
-	 * the current parsed object is used to pull the reference.
-	 */
-	private getValue(key: string, parsed: DotenvParseOutput): string {
-		/**
-		 * When existing env variables are preferred, then we lookup the
-		 * value inside `process.env` first.
-		 */
-		if (this.preferExistingEnvVariables) {
-			if (process.env[key]) {
-				return process.env[key]!
-			}
+  /**
+   * Returns value for a given key from the environment variables. Also
+   * the current parsed object is used to pull the reference.
+   */
+  private getValue(key: string, parsed: DotenvParseOutput): string {
+    /**
+     * When existing env variables are preferred, then we lookup the
+     * value inside `process.env` first.
+     */
+    if (this.preferExistingEnvVariables) {
+      if (process.env[key]) {
+        return process.env[key]!
+      }
 
-			if (parsed[key]) {
-				return this.interpolate(parsed[key], parsed)
-			}
+      if (parsed[key]) {
+        return this.interpolate(parsed[key], parsed)
+      }
 
-			return ''
-		}
+      return ''
+    }
 
-		/**
-		 * Otherwise we lookup the value inside the parsed object
-		 * first
-		 */
+    /**
+     * Otherwise we lookup the value inside the parsed object
+     * first
+     */
 
-		if (parsed[key]) {
-			return this.interpolate(parsed[key], parsed)
-		}
+    if (parsed[key]) {
+      return this.interpolate(parsed[key], parsed)
+    }
 
-		if (process.env[key]) {
-			return process.env[key]!
-		}
+    if (process.env[key]) {
+      return process.env[key]!
+    }
 
-		return ''
-	}
+    return ''
+  }
 
-	/**
-	 * Interpolating the token wrapped inside the mustache
-	 * braces.
-	 */
-	private interpolateMustache(token: string, parsed: DotenvParseOutput) {
-		/**
-		 * Finding the closing brace. If closing brace is missing, we
-		 * consider the block as a normal string
-		 */
-		const closingBrace = token.indexOf('}')
-		if (closingBrace === -1) {
-			return token
-		}
+  /**
+   * Interpolating the token wrapped inside the mustache
+   * braces.
+   */
+  private interpolateMustache(token: string, parsed: DotenvParseOutput) {
+    /**
+     * Finding the closing brace. If closing brace is missing, we
+     * consider the block as a normal string
+     */
+    const closingBrace = token.indexOf('}')
+    if (closingBrace === -1) {
+      return token
+    }
 
-		/**
-		 * Then we pull everything until the closing brace, except
-		 * the opening brace and trim off all white spaces.
-		 */
-		const varReference = token.slice(1, closingBrace).trim()
+    /**
+     * Then we pull everything until the closing brace, except
+     * the opening brace and trim off all white spaces.
+     */
+    const varReference = token.slice(1, closingBrace).trim()
 
-		/**
-		 * Getting the value of the reference inside the braces
-		 */
-		return `${this.getValue(varReference, parsed)}${token.slice(closingBrace + 1)}`
-	}
+    /**
+     * Getting the value of the reference inside the braces
+     */
+    return `${this.getValue(varReference, parsed)}${token.slice(closingBrace + 1)}`
+  }
 
-	/**
-	 * Interpolating the variable reference starting with a
-	 * `$`. We only capture numbers,letter and underscore.
-	 * For other characters, one can use the mustache
-	 * braces.
-	 */
-	private interpolateVariable(token: string, parsed: any) {
-		return token.replace(/[a-zA-Z0-9_]+/, (key) => {
-			return this.getValue(key, parsed)
-		})
-	}
+  /**
+   * Interpolating the variable reference starting with a
+   * `$`. We only capture numbers,letter and underscore.
+   * For other characters, one can use the mustache
+   * braces.
+   */
+  private interpolateVariable(token: string, parsed: any) {
+    return token.replace(/[a-zA-Z0-9_]+/, (key) => {
+      return this.getValue(key, parsed)
+    })
+  }
 
-	/**
-	 * Interpolates the referenced values
-	 */
-	private interpolate(value: string, parsed: DotenvParseOutput): string {
-		const tokens = value.split('$')
+  /**
+   * Interpolates the referenced values
+   */
+  private interpolate(value: string, parsed: DotenvParseOutput): string {
+    const tokens = value.split('$')
 
-		let newValue = ''
-		let skipNextToken = true
+    let newValue = ''
+    let skipNextToken = true
 
-		tokens.forEach((token) => {
-			/**
-			 * If the value is an escaped sequence, then we replace it
-			 * with a `$` and then skip the next token.
-			 */
-			if (token === '\\') {
-				newValue += '$'
-				skipNextToken = true
-				return
-			}
+    tokens.forEach((token) => {
+      /**
+       * If the value is an escaped sequence, then we replace it
+       * with a `$` and then skip the next token.
+       */
+      if (token === '\\') {
+        newValue += '$'
+        skipNextToken = true
+        return
+      }
 
-			/**
-			 * Use the value as it is when "skipNextToken" is set to true.
-			 */
-			if (skipNextToken) {
-				/**
-				 * Replace the ending escape sequence with a $
-				 */
-				newValue += token.replace(/\\$/, '$')
-			} else {
-				/**
-				 * Handle mustache block
-				 */
-				if (token.startsWith('{')) {
-					newValue += this.interpolateMustache(token, parsed)
-					return
-				}
+      /**
+       * Use the value as it is when "skipNextToken" is set to true.
+       */
+      if (skipNextToken) {
+        /**
+         * Replace the ending escape sequence with a $
+         */
+        newValue += token.replace(/\\$/, '$')
+      } else {
+        /**
+         * Handle mustache block
+         */
+        if (token.startsWith('{')) {
+          newValue += this.interpolateMustache(token, parsed)
+          return
+        }
 
-				/**
-				 * Process all words as variable
-				 */
-				newValue += this.interpolateVariable(token, parsed)
-			}
+        /**
+         * Process all words as variable
+         */
+        newValue += this.interpolateVariable(token, parsed)
+      }
 
-			/**
-			 * Process next token
-			 */
-			skipNextToken = false
-		})
+      /**
+       * Process next token
+       */
+      skipNextToken = false
+    })
 
-		return newValue
-	}
+    return newValue
+  }
 
-	/**
-	 * Parse the env string to an object of environment variables.
-	 */
-	public parse(envString: string) {
-		const envCollection = dotenv.parse(envString.trim())
+  /**
+   * Parse the env string to an object of environment variables.
+   */
+  public parse(envString: string) {
+    const envCollection = dotenv.parse(envString.trim())
 
-		return Object.keys(envCollection).reduce((result, key) => {
-			result[key] = this.interpolate(envCollection[key], envCollection)
-			return result
-		}, {})
-	}
+    return Object.keys(envCollection).reduce((result, key) => {
+      result[key] = this.interpolate(envCollection[key], envCollection)
+      return result
+    }, {})
+  }
 }
