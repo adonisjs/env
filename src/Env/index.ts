@@ -138,18 +138,6 @@ export class Env implements EnvContract {
   }
 
   /**
-   * Alias for [[this.get]]
-   * @depreciated
-   */
-  public getOrFail(key: string, defaultValue?: any): any {
-    process.emitWarning(
-      'DeprecationWarning',
-      'Env.getOrFail() is deprecated. Use Env validations instead'
-    )
-    return this.get(key, defaultValue)
-  }
-
-  /**
    * Set key-value pair. The value will be validated using
    * the validation rule if exists.
    *
