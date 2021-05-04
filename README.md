@@ -23,7 +23,7 @@
       Website
     </a>
     <span> | </span>
-    <a href="https://adonisjs.com/reference/config/environment-variables">
+    <a href="https://docs.adonisjs.com/guides/environment-variables">
       Guides
     </a>
     <span> | </span>
