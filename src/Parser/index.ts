@@ -140,6 +140,12 @@ export class EnvParser {
          * Replace the ending escape sequence with a $
          */
         newValue += token.replace(/\\$/, '$')
+        /**
+         *  and then skip the next token if it ends with escape sequence
+         */
+        if (token.endsWith('\\')) {
+          return
+        }
       } else {
         /**
          * Handle mustache block
