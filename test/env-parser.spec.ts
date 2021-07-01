@@ -24,6 +24,7 @@ test.group('Env Parser', (group) => {
       'HOST=127.0.0.1',
       'URL=http://$HOST:$PORT',
       'PASSWORD=pa\\$\\$word', // back to back escape sequence
+      'SINGLE_ESCAPE=java\\$cript', // single escape sequence in between
       'PRICE=\\$2.99', // escape sequence at beginning
       'NEW_PRICE=2.99\\$', // escape sequence at the end
       'REDIS_HOST=$HOST',
@@ -38,6 +39,7 @@ test.group('Env Parser', (group) => {
       'HOST': '127.0.0.1',
       'URL': 'http://127.0.0.1:3333',
       'PASSWORD': 'pa$$word',
+      'SINGLE_ESCAPE': 'java$cript',
       'PRICE': '$2.99',
       'NEW_PRICE': '2.99$',
       'REDIS_HOST': '127.0.0.1',
