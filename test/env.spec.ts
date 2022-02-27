@@ -7,17 +7,17 @@
  * file that was distributed with this source code.
  */
 
-import test from 'japa'
+import { test } from '@japa/runner'
 import { Env } from '../src/Env'
 import { schema } from '../src/Schema'
 
 test.group('Env', (group) => {
-  group.afterEach(() => {
+  group.each.setup(() => {
     delete process.env.ENV_PORT
     delete process.env.ENV_HOST
   })
 
-  test('process parsed environment variables', (assert) => {
+  test('process parsed environment variables', ({ assert }) => {
     const env = new Env([
       {
         values: {
@@ -34,7 +34,7 @@ test.group('Env', (group) => {
     assert.deepEqual(process.env.ENV_HOST, '0.0.0.0')
   })
 
-  test('do not overwrite existing env values', (assert) => {
+  test('do not overwrite existing env values', ({ assert }) => {
     process.env.ENV_PORT = '4000'
 
     const env = new Env([
@@ -53,7 +53,7 @@ test.group('Env', (group) => {
     assert.deepEqual(process.env.ENV_HOST, '0.0.0.0')
   })
 
-  test('env.get should pull values from cache (if exists)', (assert) => {
+  test('env.get should pull values from cache (if exists)', ({ assert }) => {
     process.env.ENV_PORT = '4000'
 
     const env = new Env([])
@@ -71,7 +71,7 @@ test.group('Env', (group) => {
     assert.equal(env.get('ENV_PORT'), '4000')
   })
 
-  test('validate values against the defined rules', (assert) => {
+  test('validate values against the defined rules', ({ assert }) => {
     const env = new Env([
       {
         values: { ENV_PORT: 'foo' },
@@ -81,13 +81,13 @@ test.group('Env', (group) => {
     env.rules({ ENV_PORT: schema.number() })
     const fn = () => env.process()
 
-    assert.throw(
+    assert.throws(
       fn,
       'E_INVALID_ENV_VALUE: Value for environment variable "ENV_PORT" must be numeric'
     )
   })
 
-  test('validate pre-existing values against the defined rules', (assert) => {
+  test('validate pre-existing values against the defined rules', ({ assert }) => {
     process.env.ENV_PORT = 'foo'
     const env = new Env([
       {
@@ -99,13 +99,13 @@ test.group('Env', (group) => {
     env.rules({ ENV_PORT: schema.number() })
     const fn = () => env.process()
 
-    assert.throw(
+    assert.throws(
       fn,
       'E_INVALID_ENV_VALUE: Value for environment variable "ENV_PORT" must be numeric'
     )
   })
 
-  test('overwrite existing process.env value when "overwriteExisting = true"', (assert) => {
+  test('overwrite existing process.env value when "overwriteExisting = true"', ({ assert }) => {
     process.env.ENV_PORT = 'foo'
     const env = new Env([
       {
@@ -120,27 +120,27 @@ test.group('Env', (group) => {
     assert.deepEqual(env.get('ENV_PORT'), 3333)
   })
 
-  test('validate pre-existing value when parsed value is missing', (assert) => {
+  test('validate pre-existing value when parsed value is missing', ({ assert }) => {
     process.env.ENV_PORT = 'foo'
     const env = new Env([])
     env.rules({ ENV_PORT: schema.number() })
     const fn = () => env.process()
 
-    assert.throw(
+    assert.throws(
       fn,
       'E_INVALID_ENV_VALUE: Value for environment variable "ENV_PORT" must be numeric'
     )
   })
 
-  test('validate for non-existing value', (assert) => {
+  test('validate for non-existing value', ({ assert }) => {
     const env = new Env([])
     env.rules({ ENV_PORT: schema.number() })
     const fn = () => env.process()
 
-    assert.throw(fn, 'E_MISSING_ENV_VALUE: Missing environment variable "ENV_PORT"')
+    assert.throws(fn, 'E_MISSING_ENV_VALUE: Missing environment variable "ENV_PORT"')
   })
 
-  test('return mutated value when validation succeeds', (assert) => {
+  test('return mutated value when validation succeeds', ({ assert }) => {
     const env = new Env([
       {
         values: { ENV_PORT: '3333' },
@@ -153,7 +153,7 @@ test.group('Env', (group) => {
     assert.deepEqual(env.get('ENV_PORT'), 3333)
   })
 
-  test('return mutated value when validation succeeds for pre-existing value', (assert) => {
+  test('return mutated value when validation succeeds for pre-existing value', ({ assert }) => {
     process.env.ENV_PORT = '3333'
     const env = new Env([
       {
@@ -167,7 +167,7 @@ test.group('Env', (group) => {
     assert.deepEqual(env.get('ENV_PORT'), 3333)
   })
 
-  test('validate value when mutating using "env.set"', (assert) => {
+  test('validate value when mutating using "env.set"', ({ assert }) => {
     process.env.ENV_PORT = '3333'
     const env = new Env([
       {
@@ -182,7 +182,7 @@ test.group('Env', (group) => {
     assert.deepEqual(env.get('ENV_PORT'), 3333)
 
     const fn = () => env.set('ENV_PORT', 'foo')
-    assert.throw(
+    assert.throws(
       fn,
       'E_INVALID_ENV_VALUE: Value for environment variable "ENV_PORT" must be numeric'
     )

@@ -7,15 +7,15 @@
  * file that was distributed with this source code.
  */
 
-import test from 'japa'
+import { test } from '@japa/runner'
 import { EnvParser } from '../src/Parser'
 
 test.group('Env Parser', (group) => {
-  group.afterEach(() => {
+  group.each.setup(() => {
     delete process.env.ENV_USER
   })
 
-  test('parse env string and interpolate values', async (assert) => {
+  test('parse env string and interpolate values', async ({ assert }) => {
     const parser = new EnvParser()
     process.env.ENV_USER = 'virk'
 
@@ -49,7 +49,7 @@ test.group('Env Parser', (group) => {
     })
   })
 
-  test('give preference to the parsed values when interpolating values', async (assert) => {
+  test('give preference to the parsed values when interpolating values', async ({ assert }) => {
     const parser = new EnvParser(false)
     process.env.ENV_USER = 'virk'
 
@@ -62,7 +62,9 @@ test.group('Env Parser', (group) => {
     })
   })
 
-  test('give preference to the existing env values when interpolating values', async (assert) => {
+  test('give preference to the existing env values when interpolating values', async ({
+    assert,
+  }) => {
     const parser = new EnvParser(true)
     process.env.ENV_USER = 'virk'
 
