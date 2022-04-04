@@ -12,7 +12,7 @@
 	"scripts": {
 		"mrm": "mrm --preset=@adonisjs/mrm-preset",
 		"pretest": "npm run lint",
-		"test": "node -r ts-node/register/transpile-only .bin/test.ts",
+		"test": "node -r @adonisjs/require-ts/build/register bin/test.ts",
 		"clean": "del-cli build",
 		"compile": "npm run lint && npm run clean && tsc",
 		"build": "npm run compile",
@@ -51,7 +51,6 @@
 		"mrm": "^3.0.10",
 		"np": "^7.6.0",
 		"prettier": "^2.5.1",
-		"ts-node": "^10.5.0",
 		"typescript": "^4.5.5"
 	},
 	"nyc": {
