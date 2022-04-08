@@ -15,7 +15,7 @@ import { envLoader } from '../src/loader'
 const fs = new Filesystem(join(__dirname, '__app'))
 
 test.group('Env loader', (group) => {
-  group.each.setup(async () => {
+  group.each.teardown(async () => {
     await fs.cleanup()
   })
 
@@ -54,5 +54,18 @@ test.group('Env loader', (group) => {
     const { envContents, testEnvContent } = envLoader(fs.basePath)
     assert.equal(envContents, 'PORT=3000')
     assert.equal(testEnvContent, '')
+  })
+
+  test('load .env.test file when it exists and NODE_ENV = test', async ({ assert }) => {
+    process.env.NODE_ENV = 'test'
+
+    await fs.add('.env', 'PORT=3000')
+    await fs.add('.env.test', 'PORT=4000')
+
+    const { envContents, testEnvContent } = envLoader(fs.basePath)
+    assert.equal(envContents, 'PORT=3000')
+    assert.equal(testEnvContent, 'PORT=4000')
+
+    delete process.env.NODE_ENV
   })
 })
