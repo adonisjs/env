@@ -11,7 +11,7 @@
 
 import { DotenvParseOutput } from 'dotenv'
 import { EnvContract, ValidateFn } from '@ioc:Adonis/Core/Env'
-import { schema as EnvSchema } from '../Schema'
+import { schema as EnvSchema } from '@poppinss/validator-lite'
 
 /**
  * The ENV module enables the use of environment variables by parsing dotfiles syntax
