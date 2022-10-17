@@ -9,7 +9,7 @@
 
 import { test } from '@japa/runner'
 import { Env } from '../src/Env'
-import { schema } from '../src/Schema'
+import { schema } from '@poppinss/validator-lite'
 
 test.group('Env', (group) => {
   group.each.setup(() => {
