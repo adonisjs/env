@@ -1,55 +1,85 @@
 /*
  * @adonisjs/env
  *
- * (c) Harminder Virk <virk@adonisjs.com>
+ * (c) AdonisJS
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
-import { readFileSync } from 'fs'
-import { isAbsolute, join } from 'path'
-import { Exception } from '@poppinss/utils'
+import { fileURLToPath } from 'node:url'
+import { readFile } from 'node:fs/promises'
+import { isAbsolute, join } from 'node:path'
+import { MissingEnvPathFileException } from './exceptions/missing_env_path_file.js'
 
 /**
- * Loads file from the disk and optionally ignores the missing
- * file errors
+ * Read the contents of one or more dot-env files. Following is how the files
+ * are read.
+ *
+ * - Load file from the "ENV_PATH" environment file.
+ *    (Raise error if file is missing)
+ *
+ * - If "ENV_PATH" is not defined, then find ".env" file in the app root.
+ *    (Ignore if file is missing)
+ *
+ * - Find ".env.[NODE_ENV]" file in the app root.
+ *    (Ignore if file is missing)
+ *
+ * ```ts
+ * const loader = new EnvLoader(new URL('./', import.meta.url))
+ *
+ * const { envContents, currentEnvContents } = await loader.load()
+ *
+ * // envContents: Contents of .env or file specified via ENV_PATH
+ * // currentEnvContents: Contents of .env.[NODE_ENV] file
+ * ```
  */
-function loadFile(filePath: string, optional: boolean = false): string {
-  try {
-    return readFileSync(filePath, 'utf-8')
-  } catch (error) {
-    if (error.code !== 'ENOENT') {
-      throw error
-    }
+export class EnvLoader {
+  #appRoot: string
 
-    if (!optional) {
-      throw new Exception(`The "${filePath}" file is missing`, 500, 'E_MISSING_ENV_FILE')
-    }
+  constructor(appRoot: string | URL) {
+    this.#appRoot = typeof appRoot === 'string' ? appRoot : fileURLToPath(appRoot)
   }
-
-  return ''
-}
-
-/**
- * Reads `.env` file contents
- */
-export function envLoader(appRoot: string): { envContents: string; testEnvContent: string } {
-  const envPath = process.env.ENV_PATH || '.env'
-  const absPath = isAbsolute(envPath) ? envPath : join(appRoot, envPath)
-
-  const envContents = loadFile(absPath, true)
 
   /**
-   * Optionally load the `.env.test` and `.env.testing` files
-   * in test environment
+   * Optionally read a file from the disk
    */
-  let testEnvContent = ''
-  if (process.env.NODE_ENV === 'testing') {
-    testEnvContent = loadFile(join(appRoot, '.env.testing'), true)
-  } else if (process.env.NODE_ENV === 'test') {
-    testEnvContent = loadFile(join(appRoot, '.env.test'), true)
+  async #loadFile(filePath: string | URL, optional: boolean = false): Promise<string> {
+    try {
+      return await readFile(filePath, 'utf-8')
+    } catch (error) {
+      if (error.code !== 'ENOENT') {
+        throw error
+      }
+
+      if (optional) {
+        return ''
+      }
+
+      throw new MissingEnvPathFileException(`Cannot find env file from "ENV_PATH"`, {
+        cause: error,
+      })
+    }
   }
 
-  return { testEnvContent, envContents }
+  /**
+   * Load contents of the main dot-env file and the current
+   * environment dot-env file
+   */
+  async load() {
+    /**
+     * Load the primary dot env file.
+     */
+    const envFile = process.env.ENV_PATH || '.env'
+    const envPath = isAbsolute(envFile) ? envFile : join(this.#appRoot, envFile)
+    const envContents = await this.#loadFile(envPath, !process.env.ENV_PATH)
+
+    /**
+     * Load the secondary dot env file
+     */
+    const currentEnvPath = join(this.#appRoot, `.env.${process.env.NODE_ENV}`)
+    const currentEnvContents = await this.#loadFile(currentEnvPath, true)
+
+    return { envContents, currentEnvContents }
+  }
 }

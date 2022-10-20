@@ -1,7 +1,7 @@
 /*
  * @adonisjs/env
  *
- * (c) Harminder Virk <virk@adonisjs.com>
+ * (c) AdonisJS
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,7 +13,7 @@ import dotenv, { DotenvParseOutput } from 'dotenv'
  * Env parser parses the environment variables from a string formatted
  * as a key-value pair seperated using an `=`. For example:
  *
- * ```
+ * ```dotenv
  * PORT=3333
  * HOST=127.0.0.1
  * ```
@@ -21,64 +21,56 @@ import dotenv, { DotenvParseOutput } from 'dotenv'
  * The variables can reference other environment variables as well using `$`.
  * For example:
  *
- * ```
+ * ```dotenv
  * PORT=3333
  * REDIS_PORT=$PORT
  * ```
  *
- * The variables using characters other than letters can use wrap variables inside
- * a curly brace.
+ * The variables using characters other than letters can wrap variable
+ * named inside a curly brace.
  *
- * ```
+ * ```dotenv
  * APP-PORT=3333
  * REDIS_PORT=${APP-PORT}
  * ```
+ *
+ * You can escape the `$` sign with a backtick.
+ *
+ * ```dotenv
+ * REDIS_PASSWORD=foo\$123
+ * ```
+ *
+ * ## Usage
+ *
+ * ```ts
+ * const parser = new EnvParser(envContents)
+ * const output = parser.parse()
+ *
+ * // The output is a key-value pair
+ * ```
  */
 export class EnvParser {
-  constructor(private preferExistingEnvVariables: boolean = true) {}
+  #envContents: string
+
+  constructor(envContents: string) {
+    this.#envContents = envContents
+  }
 
   /**
-   * Returns value for a given key from the environment variables. Also
-   * the current parsed object is used to pull the reference.
+   * Returns the value from the parsed object
    */
-  private getValue(key: string, parsed: DotenvParseOutput): string {
-    /**
-     * When existing env variables are preferred, then we lookup the
-     * value inside `process.env` first.
-     */
-    if (this.preferExistingEnvVariables) {
-      if (process.env[key]) {
-        return process.env[key]!
-      }
-
-      if (parsed[key]) {
-        return this.interpolate(parsed[key], parsed)
-      }
-
-      return ''
-    }
-
-    /**
-     * Otherwise we lookup the value inside the parsed object
-     * first
-     */
-
+  #getValue(key: string, parsed: DotenvParseOutput): string {
     if (parsed[key]) {
-      return this.interpolate(parsed[key], parsed)
-    }
-
-    if (process.env[key]) {
-      return process.env[key]!
+      return this.#interpolate(parsed[key], parsed)
     }
 
     return ''
   }
 
   /**
-   * Interpolating the token wrapped inside the mustache
-   * braces.
+   * Interpolating the token wrapped inside the mustache braces.
    */
-  private interpolateMustache(token: string, parsed: DotenvParseOutput) {
+  #interpolateMustache(token: string, parsed: DotenvParseOutput) {
     /**
      * Finding the closing brace. If closing brace is missing, we
      * consider the block as a normal string
@@ -97,7 +89,7 @@ export class EnvParser {
     /**
      * Getting the value of the reference inside the braces
      */
-    return `${this.getValue(varReference, parsed)}${token.slice(closingBrace + 1)}`
+    return `${this.#getValue(varReference, parsed)}${token.slice(closingBrace + 1)}`
   }
 
   /**
@@ -106,16 +98,16 @@ export class EnvParser {
    * For other characters, one can use the mustache
    * braces.
    */
-  private interpolateVariable(token: string, parsed: any) {
+  #interpolateVariable(token: string, parsed: any) {
     return token.replace(/[a-zA-Z0-9_]+/, (key) => {
-      return this.getValue(key, parsed)
+      return this.#getValue(key, parsed)
     })
   }
 
   /**
    * Interpolates the referenced values
    */
-  private interpolate(value: string, parsed: DotenvParseOutput): string {
+  #interpolate(value: string, parsed: DotenvParseOutput): string {
     const tokens = value.split('$')
 
     let newValue = ''
@@ -151,14 +143,14 @@ export class EnvParser {
          * Handle mustache block
          */
         if (token.startsWith('{')) {
-          newValue += this.interpolateMustache(token, parsed)
+          newValue += this.#interpolateMustache(token, parsed)
           return
         }
 
         /**
          * Process all words as variable
          */
-        newValue += this.interpolateVariable(token, parsed)
+        newValue += this.#interpolateVariable(token, parsed)
       }
 
       /**
@@ -173,11 +165,11 @@ export class EnvParser {
   /**
    * Parse the env string to an object of environment variables.
    */
-  public parse(envString: string) {
-    const envCollection = dotenv.parse(envString.trim())
+  parse(): DotenvParseOutput {
+    const envCollection = dotenv.parse(this.#envContents.trim())
 
     return Object.keys(envCollection).reduce((result, key) => {
-      result[key] = this.interpolate(envCollection[key], envCollection)
+      result[key] = this.#interpolate(envCollection[key], envCollection)
       return result
     }, {})
   }

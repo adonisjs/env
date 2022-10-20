@@ -1,71 +1,69 @@
 /*
  * @adonisjs/env
  *
- * (c) Harminder Virk <virk@adonisjs.com>
+ * (c) AdonisJS
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
+import fsExtra from 'fs-extra'
+import { join } from 'node:path'
 import { test } from '@japa/runner'
-import { join } from 'path'
-import { Filesystem } from '@poppinss/dev-utils'
-import { envLoader } from '../src/loader'
+import { fileURLToPath } from 'node:url'
+import { EnvLoader } from '../src/loader.js'
 
-const fs = new Filesystem(join(__dirname, '__app'))
+const BASE_URL = new URL('./app', import.meta.url)
+const BASE_PATH = fileURLToPath(BASE_URL)
 
 test.group('Env loader', (group) => {
   group.each.teardown(async () => {
-    await fs.cleanup()
+    await fsExtra.remove(BASE_PATH)
   })
 
-  test('do not raise exception when .env file is missing', async ({ assert }) => {
-    const { envContents, testEnvContent } = envLoader(fs.basePath)
+  test('return empty string when .env files are missing', async ({ assert, expectTypeOf }) => {
+    const { envContents, currentEnvContents } = await new EnvLoader(BASE_URL).load()
+    expectTypeOf(envContents).toEqualTypeOf<string>()
+    expectTypeOf(currentEnvContents).toEqualTypeOf<string>()
     assert.equal(envContents, '')
-    assert.equal(testEnvContent, '')
+    assert.equal(currentEnvContents, '')
   })
 
-  test('load and return contents of .env file', async ({ assert }) => {
-    await fs.add('.env', 'PORT=3000')
-    const { envContents, testEnvContent } = envLoader(fs.basePath)
+  test('get contents of the .env file from the app root', async ({ assert, expectTypeOf }) => {
+    await fsExtra.outputFile(join(BASE_PATH, '.env'), 'PORT=3000')
+
+    const { envContents, currentEnvContents } = await new EnvLoader(BASE_URL).load()
+    expectTypeOf(envContents).toEqualTypeOf<string>()
+    expectTypeOf(currentEnvContents).toEqualTypeOf<string>()
     assert.equal(envContents, 'PORT=3000')
-    assert.equal(testEnvContent, '')
+    assert.equal(currentEnvContents, '')
   })
 
-  test('load .env.testing file when it exists and NODE_ENV = testing', async ({ assert }) => {
+  test('load env.[NODE_ENV] file', async ({ assert, expectTypeOf, cleanup }) => {
     process.env.NODE_ENV = 'testing'
+    cleanup(() => {
+      delete process.env.NODE_ENV
+    })
 
-    await fs.add('.env', 'PORT=3000')
-    await fs.add('.env.testing', 'PORT=4000')
+    await fsExtra.outputFile(join(BASE_PATH, '.env'), 'PORT=3000')
+    await fsExtra.outputFile(join(BASE_PATH, '.env.testing'), 'PORT=4000')
 
-    const { envContents, testEnvContent } = envLoader(fs.basePath)
+    const { envContents, currentEnvContents } = await new EnvLoader(BASE_PATH).load()
+    expectTypeOf(envContents).toEqualTypeOf<string>()
+    expectTypeOf(currentEnvContents).toEqualTypeOf<string>()
     assert.equal(envContents, 'PORT=3000')
-    assert.equal(testEnvContent, 'PORT=4000')
-
-    delete process.env.NODE_ENV
+    assert.equal(currentEnvContents, 'PORT=4000')
   })
 
-  test('do not load .env.testing file when it exists and NODE_ENV != testing', async ({
-    assert,
-  }) => {
-    await fs.add('.env', 'PORT=3000')
-    await fs.add('.env.testing', 'PORT=4000')
+  test('raise error when ENV_PATH file is missing', async ({ assert, cleanup }) => {
+    process.env.ENV_PATH = '.env'
+    cleanup(() => {
+      delete process.env.ENV_PATH
+    })
 
-    const { envContents, testEnvContent } = envLoader(fs.basePath)
-    assert.equal(envContents, 'PORT=3000')
-    assert.equal(testEnvContent, '')
-  })
-
-  test('load .env.test file when it exists and NODE_ENV = test', async ({ assert }) => {
-    process.env.NODE_ENV = 'test'
-
-    await fs.add('.env', 'PORT=3000')
-    await fs.add('.env.test', 'PORT=4000')
-
-    const { envContents, testEnvContent } = envLoader(fs.basePath)
-    assert.equal(envContents, 'PORT=3000')
-    assert.equal(testEnvContent, 'PORT=4000')
-
-    delete process.env.NODE_ENV
+    await assert.rejects(
+      () => new EnvLoader(BASE_URL).load(),
+      'Cannot find env file from "ENV_PATH"'
+    )
   })
 })

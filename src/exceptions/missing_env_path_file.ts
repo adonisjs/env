@@ -7,6 +7,9 @@
  * file that was distributed with this source code.
  */
 
-export { Env } from './src/env.js'
-export { EnvParser } from './src/parser.js'
-export { EnvLoader } from './src/loader.js'
+import { Exception } from '@poppinss/utils'
+
+export class MissingEnvPathFileException extends Exception {
+  static status = 500
+  static code = 'E_MISSING_ENV_PATH_FILE'
+}
