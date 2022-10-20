@@ -29,8 +29,42 @@ test.group('Env Validator', () => {
 
     assert.throws(
       () => validator.validate({}),
-      'E_MISSING_ENV_VALUE: Missing environment variable "PORT"'
+      'Validation failed for one or more environment variables'
     )
+  })
+
+  test('return all validation errors under help text', async ({ assert }) => {
+    assert.plan(1)
+
+    const validator = new EnvValidator({
+      PORT: schema.number(),
+      HOST: schema.string(),
+    })
+
+    try {
+      validator.validate({})
+    } catch (error) {
+      assert.deepEqual(error.help.split('\n'), [
+        '- E_MISSING_ENV_VALUE: Missing environment variable "PORT"',
+        '- E_MISSING_ENV_VALUE: Missing environment variable "HOST"',
+      ])
+    }
+  })
+
+  test('point error stack to correct file', async ({ assert }) => {
+    assert.plan(1)
+
+    const validator = new EnvValidator({
+      PORT: schema.number(),
+      HOST: schema.string(),
+    })
+
+    try {
+      validator.validate({})
+    } catch (error) {
+      const source = error.stack.split('\n')[2]
+      assert.match(source, new RegExp(`${import.meta.url}:57`))
+    }
   })
 
   test('return additional values as it is', async ({ assert, expectTypeOf }) => {

@@ -8,6 +8,7 @@
  */
 
 import { ValidateFn } from '@poppinss/validator-lite'
+import { InvalidEnvVariablesException } from './exceptions/invalid_env_variables.js'
 
 /**
  * Exposes the API to validate environment variables against a
@@ -17,9 +18,11 @@ import { ValidateFn } from '@poppinss/validator-lite'
  */
 export class EnvValidator<Schema extends { [key: string]: ValidateFn<unknown> }> {
   #schema: Schema
+  #error: InvalidEnvVariablesException
 
   constructor(schema: Schema) {
     this.#schema = schema
+    this.#error = new InvalidEnvVariablesException()
   }
 
   /**
@@ -32,12 +35,24 @@ export class EnvValidator<Schema extends { [key: string]: ValidateFn<unknown> }>
   validate(values: { [K: string]: string | undefined }): {
     [K in keyof Schema]: ReturnType<Schema[K]>
   } {
-    return Object.keys(this.#schema).reduce(
+    const help: string[] = []
+    const validated = Object.keys(this.#schema).reduce(
       (result, key) => {
-        result[key] = this.#schema[key](key, values[key]) as any
+        try {
+          result[key] = this.#schema[key](key, values[key]) as any
+        } catch (error) {
+          help.push(`- ${error.message}`)
+        }
         return result
       },
       { ...values }
     ) as { [K in keyof Schema]: ReturnType<Schema[K]> }
+
+    if (help.length) {
+      this.#error.help = help.join('\n')
+      throw this.#error
+    }
+
+    return validated
   }
 }
