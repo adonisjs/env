@@ -63,8 +63,7 @@ test.group('Env Validator', () => {
       validator.validate({})
     } catch (error) {
       const source = error.stack.split('\n')[2]
-      console.log(source)
-      assert.equal(source, `    at Object.executor (${import.meta.url}:57:23)`)
+      assert.match(source, new RegExp(import.meta.url))
     }
   })
 
