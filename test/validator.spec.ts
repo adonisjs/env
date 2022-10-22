@@ -44,7 +44,7 @@ test.group('Env Validator', () => {
     try {
       validator.validate({})
     } catch (error) {
-      assert.deepEqual(error.help.split('\n'), [
+      assert.deepEqual(error.cause.split('\n'), [
         '- E_MISSING_ENV_VALUE: Missing environment variable "PORT"',
         '- E_MISSING_ENV_VALUE: Missing environment variable "HOST"',
       ])
