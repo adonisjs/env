@@ -178,7 +178,7 @@ export class EnvParser {
     const envCollection = dotenv.parse(this.#envContents.trim())
 
     return Object.keys(envCollection).reduce((result, key) => {
-      result[key] = this.#interpolate(this.#getValue(key, envCollection), envCollection)
+      result[key] = this.#getValue(key, envCollection)
       return result
     }, {})
   }
