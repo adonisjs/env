@@ -25,7 +25,7 @@ import { EnvLoader } from '@adonisjs/env'
 const lookupPath = new URL('./', import.meta.url)
 const loader = new EnvLoader(lookupPath)
 
-const { envContents, currentEnvContents } = loader.load()
+const { envContents, currentEnvContents } = await loader.load()
 ```
 
 ### `envContents`
@@ -39,7 +39,7 @@ const { envContents, currentEnvContents } = loader.load()
 
 - The `currentEnvContents` contents are read from the `.env.[NODE_ENV]` file. 
 - If the current `NODE_ENV = 'development'`, then the contents of this variable will be from the `.env.development` file and so on.
-- The contents of this file should precede the `.env` file.
+- The contents of this file should take precendence over the `.env` file.
 
 ## EnvParser
 The `EnvParser` class is responsible for parsing the contents of the `.env` file(s) and converting them into an object.
@@ -49,7 +49,7 @@ import { EnvLoader, EnvParser } from '@adonisjs/env'
 
 const lookupPath = new URL('./', import.meta.url)
 const loader = new EnvLoader(lookupPath)
-const { envContents, currentEnvContents } = loader.load()
+const { envContents, currentEnvContents } = await loader.load()
 
 const envParser = new EnvParser(envContents)
 const currentEnvParser = new EnvParser(currentEnvContents)
@@ -91,10 +91,19 @@ import { EnvLoader, EnvParser, Env } from '@adonisjs/env'
 
 const lookupPath = new URL('./', import.meta.url)
 const loader = new EnvLoader(lookupPath)
-const { envContents, currentEnvContents } = loader.load()
+const { envContents, currentEnvContents } = await loader.load()
 
 const envValues = new EnvParser(envContents).parse()
 const currentEnvValues = new EnvParser(currentEnvContents).parse()
+
+/**
+ * Loop over all the current env parsed values and make
+ * them take precedence over the existing process.env
+ * values.
+ */
+Object.keys(currentEnvValues).forEach((key) => {
+  process.env[key] = currentEnvValues[key]
+})
 
 /**
  * Loop over all the parsed env values and set
@@ -110,15 +119,6 @@ Object.keys(envValues).forEach((key) => {
   } else {
     process.env[key] = envValues[key]
   }
-})
-
-/**
- * Loop over all the current env parsed values and make
- * them take precedence over the existing process.env
- * values.
- */
-Object.keys(currentEnvValues).forEach((key) => {
-  process.env[key] = envValues[key]
 })
 
 // Now perform the validation
