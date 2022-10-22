@@ -51,8 +51,13 @@ import dotenv, { DotenvParseOutput } from 'dotenv'
  */
 export class EnvParser {
   #envContents: string
+  #preferProcessEnv: boolean = false
 
-  constructor(envContents: string) {
+  constructor(envContents: string, options?: { preferProcessEnv: boolean }) {
+    if (options?.preferProcessEnv) {
+      this.#preferProcessEnv = true
+    }
+
     this.#envContents = envContents
   }
 
@@ -60,11 +65,15 @@ export class EnvParser {
    * Returns the value from the parsed object
    */
   #getValue(key: string, parsed: DotenvParseOutput): string {
+    if (this.#preferProcessEnv && process.env[key]) {
+      return process.env[key]!
+    }
+
     if (parsed[key]) {
       return this.#interpolate(parsed[key], parsed)
     }
 
-    return ''
+    return process.env[key] || ''
   }
 
   /**
@@ -169,7 +178,7 @@ export class EnvParser {
     const envCollection = dotenv.parse(this.#envContents.trim())
 
     return Object.keys(envCollection).reduce((result, key) => {
-      result[key] = this.#interpolate(envCollection[key], envCollection)
+      result[key] = this.#interpolate(this.#getValue(key, envCollection), envCollection)
       return result
     }, {})
   }

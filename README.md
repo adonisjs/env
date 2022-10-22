@@ -60,6 +60,12 @@ console.log(currentEnvParser.parse()) // { key: value }
 
 The return value of `parser.parse` is an object with key-value pair. The parser also has support for interpolation.
 
+You can also instruct the parser to prefer existing `process.env` values when they exist. When `preferProcessEnv` is set to `true`, the value from the env contents will be discarded in favor of existing `process.env` value.
+
+```ts
+new EnvParser(envContents, { preferProcessEnv: true })
+```
+
 ## Validating environment variables
 Once you have the parsed objects, you can optionally validate them against a pre-defined schema. We recommend validation for the following reasons.
 
@@ -93,17 +99,17 @@ const lookupPath = new URL('./', import.meta.url)
 const loader = new EnvLoader(lookupPath)
 const { envContents, currentEnvContents } = await loader.load()
 
-const envValues = new EnvParser(envContents).parse()
-const currentEnvValues = new EnvParser(currentEnvContents).parse()
-
 /**
- * Loop over all the current env parsed values and make
+ * Loop over all the current env parsed values and let
  * them take precedence over the existing process.env
  * values.
  */
+const currentEnvValues = new EnvParser(currentEnvContents).parse()
 Object.keys(currentEnvValues).forEach((key) => {
   process.env[key] = currentEnvValues[key]
 })
+
+const envValues = new EnvParser(envContents, { preferProcessEnv: true }).parse()
 
 /**
  * Loop over all the parsed env values and set

@@ -48,7 +48,13 @@ test.group('Env Parser', () => {
   test('give preference to the parsed values when interpolating values', async ({
     assert,
     expectTypeOf,
+    cleanup,
   }) => {
+    process.env.ENV_USER = 'virk'
+    cleanup(() => {
+      delete process.env.ENV_USER
+    })
+
     const envString = ['ENV_USER=romain', 'REDIS-USER=$ENV_USER'].join('\n')
     const parser = new EnvParser(envString)
 
@@ -57,6 +63,47 @@ test.group('Env Parser', () => {
     assert.deepEqual(parsed, {
       'ENV_USER': 'romain',
       'REDIS-USER': 'romain',
+    })
+  })
+
+  test('give preference to the existing process.env values when interpolating values', async ({
+    assert,
+    expectTypeOf,
+    cleanup,
+  }) => {
+    process.env.ENV_USER = 'virk'
+    cleanup(() => {
+      delete process.env.ENV_USER
+    })
+
+    const envString = ['ENV_USER=romain', 'REDIS-USER=$ENV_USER'].join('\n')
+    const parser = new EnvParser(envString, { preferProcessEnv: true })
+
+    const parsed = parser.parse()
+    expectTypeOf(parsed).toEqualTypeOf<DotenvParseOutput>()
+    assert.deepEqual(parsed, {
+      'ENV_USER': 'virk',
+      'REDIS-USER': 'virk',
+    })
+  })
+
+  test('use process.env values during interpolation even when process.env is not preferred', async ({
+    assert,
+    expectTypeOf,
+    cleanup,
+  }) => {
+    process.env.ENV_USER = 'virk'
+    cleanup(() => {
+      delete process.env.ENV_USER
+    })
+
+    const envString = ['REDIS-USER=$ENV_USER'].join('\n')
+    const parser = new EnvParser(envString)
+
+    const parsed = parser.parse()
+    expectTypeOf(parsed).toEqualTypeOf<DotenvParseOutput>()
+    assert.deepEqual(parsed, {
+      'REDIS-USER': 'virk',
     })
   })
 })
