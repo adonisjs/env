@@ -56,7 +56,7 @@ test.group('Env Parser', () => {
     })
 
     const envString = ['ENV_USER=romain', 'REDIS-USER=$ENV_USER'].join('\n')
-    const parser = new EnvParser(envString)
+    const parser = new EnvParser(envString, { preferProcessEnv: false })
 
     const parsed = parser.parse()
     expectTypeOf(parsed).toEqualTypeOf<DotenvParseOutput>()
@@ -77,7 +77,7 @@ test.group('Env Parser', () => {
     })
 
     const envString = ['ENV_USER=romain', 'REDIS-USER=$ENV_USER'].join('\n')
-    const parser = new EnvParser(envString, { preferProcessEnv: true })
+    const parser = new EnvParser(envString)
 
     const parsed = parser.parse()
     expectTypeOf(parsed).toEqualTypeOf<DotenvParseOutput>()

@@ -51,11 +51,11 @@ import dotenv, { DotenvParseOutput } from 'dotenv'
  */
 export class EnvParser {
   #envContents: string
-  #preferProcessEnv: boolean = false
+  #preferProcessEnv: boolean = true
 
   constructor(envContents: string, options?: { preferProcessEnv: boolean }) {
-    if (options?.preferProcessEnv) {
-      this.#preferProcessEnv = true
+    if (options?.preferProcessEnv === false) {
+      this.#preferProcessEnv = false
     }
 
     this.#envContents = envContents

@@ -25,21 +25,24 @@ import { EnvLoader } from '@adonisjs/env'
 const lookupPath = new URL('./', import.meta.url)
 const loader = new EnvLoader(lookupPath)
 
-const { envContents, currentEnvContents } = await loader.load()
+const envFiles = await loader.load()
 ```
 
-### `envContents`
+The return value is an array of objects with following properties.
 
-- The `envContents` is read from the `.env` file from the root of the `lookupPath`.
-- No exceptions are raised if the `.env` file is missing. In brief, it is optional to have a `.env` file.
-- If the `ENV_PATH` environment variable is set, the loader will use that instead of the `.env` file. This allows overwriting the location of the dot-env file.
+- `path`: The path to the loaded dot-env file.
+- `contents`: The contents of the file.
 
+Following is the list of loaded files. The array is ordered by the priority of the files. The first file has the highest priority and must override the variables from the last file.
 
-### `currentEnvContents`
+| Priority | File name | Environment | Should I `.gitignore` it | Notes |
+|----------|-----------|-------------|--------------------------|-------|
+| 1st | `.env.[NODE_ENV].local` | Current environment | Yes | Loaded when `NODE_ENV` is set |
+| 2nd | `.env.local` | All | Yes | Loaded in all the environments except `test` or `testing` environments |
+| 3rd | `.env.[NODE_ENV]` | Current environment | No | Loaded when `NODE_ENV` is set |
+| 4th | `.env` | All | Depends | Loaded in all the environments. You should `.gitignore` it when storing secrets in this file |
 
-- The `currentEnvContents` contents are read from the `.env.[NODE_ENV]` file. 
-- If the current `NODE_ENV = 'development'`, then the contents of this variable will be from the `.env.development` file and so on.
-- The contents of this file should take precendence over the `.env` file.
+> **Note**: Existing `process.env` variables have the top most priority over the variables defined in any of the files.
 
 ## EnvParser
 The `EnvParser` class is responsible for parsing the contents of the `.env` file(s) and converting them into an object.
@@ -97,34 +100,28 @@ import { EnvLoader, EnvParser, Env } from '@adonisjs/env'
 
 const lookupPath = new URL('./', import.meta.url)
 const loader = new EnvLoader(lookupPath)
-const { envContents, currentEnvContents } = await loader.load()
+const envFiles = await loader.load()
 
-/**
- * Loop over all the current env parsed values and let
- * them take precedence over the existing process.env
- * values.
- */
-const currentEnvValues = new EnvParser(currentEnvContents).parse()
-Object.keys(currentEnvValues).forEach((key) => {
-  process.env[key] = currentEnvValues[key]
-})
+let envValues = {}
 
-const envValues = new EnvParser(envContents, { preferProcessEnv: true }).parse()
-
-/**
- * Loop over all the parsed env values and set
- * them on "process.env"
- * 
- * However, if the value already exists on "process.env", then
- * do not overwrite it, instead update the envValues
- * object.
- */
-Object.keys(envValues).forEach((key) => {
-  if (process.env[key]) {
-    envValues[key] = process.env[key]
-  } else {
-    process.env[key] = envValues[key]
+envFiles.forEach(({ contents }) => {
+  if (!contents.trim()) {
+    return
   }
+
+  const values = new EnvParser(contents).parse()
+  Object.keys(values).forEach((key) => {
+    let value = process.env[key]
+
+    if (!value) {
+      value = values[key]
+      process.env[key] = values[key]
+    }
+
+    if (!envValues[key]) {
+      envValues[key] = value
+    }
+  })
 })
 
 // Now perform the validation
@@ -133,7 +130,7 @@ const validate = Env.rules({
   HOST: Env.schema.string({ format: 'host' })
 })
 
-const validated = validate({ ...envValues, ...currentEnvValues })
+const validated = validate(envValues)
 const env = new Env(validated)
 
 env.get('PORT') // is a number

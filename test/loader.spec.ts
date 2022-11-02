@@ -22,24 +22,72 @@ test.group('Env loader', (group) => {
   })
 
   test('return empty string when .env files are missing', async ({ assert, expectTypeOf }) => {
-    const { envContents, currentEnvContents } = await new EnvLoader(BASE_URL).load()
-    expectTypeOf(envContents).toEqualTypeOf<string>()
-    expectTypeOf(currentEnvContents).toEqualTypeOf<string>()
-    assert.equal(envContents, '')
-    assert.equal(currentEnvContents, '')
+    const envFiles = await new EnvLoader(BASE_URL).load()
+    assert.deepEqual(envFiles, [
+      {
+        path: join(BASE_PATH, '.env.local'),
+        contents: '',
+      },
+      {
+        path: join(BASE_PATH, '.env'),
+        contents: '',
+      },
+    ])
+
+    expectTypeOf(envFiles).toEqualTypeOf<{ path: string; contents: string }[]>()
   })
 
   test('get contents of the .env file from the app root', async ({ assert, expectTypeOf }) => {
     await fsExtra.outputFile(join(BASE_PATH, '.env'), 'PORT=3000')
 
-    const { envContents, currentEnvContents } = await new EnvLoader(BASE_URL).load()
-    expectTypeOf(envContents).toEqualTypeOf<string>()
-    expectTypeOf(currentEnvContents).toEqualTypeOf<string>()
-    assert.equal(envContents, 'PORT=3000')
-    assert.equal(currentEnvContents, '')
+    const envFiles = await new EnvLoader(BASE_URL).load()
+    assert.deepEqual(envFiles, [
+      {
+        path: join(BASE_PATH, '.env.local'),
+        contents: '',
+      },
+      {
+        path: join(BASE_PATH, '.env'),
+        contents: 'PORT=3000',
+      },
+    ])
+
+    expectTypeOf(envFiles).toEqualTypeOf<{ path: string; contents: string }[]>()
   })
 
-  test('load env.[NODE_ENV] file', async ({ assert, expectTypeOf, cleanup }) => {
+  test('load env.[NODE_ENV] files', async ({ assert, expectTypeOf, cleanup }) => {
+    process.env.NODE_ENV = 'production'
+    cleanup(() => {
+      delete process.env.NODE_ENV
+    })
+
+    await fsExtra.outputFile(join(BASE_PATH, '.env'), 'PORT=3000')
+    await fsExtra.outputFile(join(BASE_PATH, '.env.production'), 'PORT=4000')
+
+    const envFiles = await new EnvLoader(BASE_URL).load()
+    assert.deepEqual(envFiles, [
+      {
+        path: join(BASE_PATH, '.env.production.local'),
+        contents: '',
+      },
+      {
+        path: join(BASE_PATH, '.env.local'),
+        contents: '',
+      },
+      {
+        path: join(BASE_PATH, '.env.production'),
+        contents: 'PORT=4000',
+      },
+      {
+        path: join(BASE_PATH, '.env'),
+        contents: 'PORT=3000',
+      },
+    ])
+
+    expectTypeOf(envFiles).toEqualTypeOf<{ path: string; contents: string }[]>()
+  })
+
+  test('do not load .env.local in testing env', async ({ assert, expectTypeOf, cleanup }) => {
     process.env.NODE_ENV = 'testing'
     cleanup(() => {
       delete process.env.NODE_ENV
@@ -48,22 +96,41 @@ test.group('Env loader', (group) => {
     await fsExtra.outputFile(join(BASE_PATH, '.env'), 'PORT=3000')
     await fsExtra.outputFile(join(BASE_PATH, '.env.testing'), 'PORT=4000')
 
-    const { envContents, currentEnvContents } = await new EnvLoader(BASE_PATH).load()
-    expectTypeOf(envContents).toEqualTypeOf<string>()
-    expectTypeOf(currentEnvContents).toEqualTypeOf<string>()
-    assert.equal(envContents, 'PORT=3000')
-    assert.equal(currentEnvContents, 'PORT=4000')
+    const envFiles = await new EnvLoader(BASE_URL).load()
+    assert.deepEqual(envFiles, [
+      {
+        path: join(BASE_PATH, '.env.testing.local'),
+        contents: '',
+      },
+      {
+        path: join(BASE_PATH, '.env.testing'),
+        contents: 'PORT=4000',
+      },
+      {
+        path: join(BASE_PATH, '.env'),
+        contents: 'PORT=3000',
+      },
+    ])
+
+    expectTypeOf(envFiles).toEqualTypeOf<{ path: string; contents: string }[]>()
   })
 
-  test('raise error when ENV_PATH file is missing', async ({ assert, cleanup }) => {
-    process.env.ENV_PATH = '.env'
+  test('use custom ENV_PATH', async ({ assert, cleanup }) => {
+    process.env.ENV_PATH = 'foo/bar'
     cleanup(() => {
       delete process.env.ENV_PATH
     })
 
-    await assert.rejects(
-      () => new EnvLoader(BASE_URL).load(),
-      'Cannot find env file from "ENV_PATH"'
-    )
+    const envFiles = await new EnvLoader(BASE_URL).load()
+    assert.deepEqual(envFiles, [
+      {
+        path: join(BASE_PATH, 'foo/bar', '.env.local'),
+        contents: '',
+      },
+      {
+        path: join(BASE_PATH, 'foo/bar', '.env'),
+        contents: '',
+      },
+    ])
   })
 })

@@ -44,7 +44,7 @@ export class EnvLoader {
   /**
    * Optionally read a file from the disk
    */
-  async #loadFile(filePath: string | URL, optional: boolean = false): Promise<string> {
+  async #loadFile(filePath: string | URL, optional: boolean = true): Promise<string> {
     try {
       return await readFile(filePath, 'utf-8')
     } catch (error) {
@@ -67,19 +67,64 @@ export class EnvLoader {
    * environment dot-env file
    */
   async load() {
-    /**
-     * Load the primary dot env file.
-     */
-    const envFile = process.env.ENV_PATH || '.env'
-    const envPath = isAbsolute(envFile) ? envFile : join(this.#appRoot, envFile)
-    const envContents = await this.#loadFile(envPath, !process.env.ENV_PATH)
+    const ENV_PATH = process.env.ENV_PATH
+    const NODE_ENV = process.env.NODE_ENV
+    const envFiles: { path: string; contents: string }[] = []
 
     /**
-     * Load the secondary dot env file
+     * Base path to load .env files from
      */
-    const currentEnvPath = join(this.#appRoot, `.env.${process.env.NODE_ENV}`)
-    const currentEnvContents = await this.#loadFile(currentEnvPath, true)
+    const baseEnvPath = ENV_PATH
+      ? isAbsolute(ENV_PATH)
+        ? ENV_PATH
+        : join(this.#appRoot, ENV_PATH)
+      : this.#appRoot
 
-    return { envContents, currentEnvContents }
+    /**
+     * 1st
+     * The top most priority is given to the ".env.[NODE_ENV].local" file
+     */
+    if (NODE_ENV) {
+      const nodeEnvLocalFile = join(baseEnvPath, `.env.${process.env.NODE_ENV}.local`)
+      envFiles.push({
+        path: nodeEnvLocalFile,
+        contents: await this.#loadFile(nodeEnvLocalFile),
+      })
+    }
+
+    /**
+     * 2nd
+     * Next, we give priority to the ".env.local" file
+     */
+    if (!NODE_ENV || !['test', 'testing'].includes(NODE_ENV)) {
+      const envLocalFile = join(baseEnvPath, '.env.local')
+      envFiles.push({
+        path: envLocalFile,
+        contents: await this.#loadFile(envLocalFile),
+      })
+    }
+
+    /**
+     * 3rd
+     * Next, we give priority to the ".env.[NODE_ENV]" file
+     */
+    if (NODE_ENV) {
+      const nodeEnvFile = join(baseEnvPath, `.env.${process.env.NODE_ENV}`)
+      envFiles.push({
+        path: nodeEnvFile,
+        contents: await this.#loadFile(nodeEnvFile),
+      })
+    }
+
+    /**
+     * Finally, we push the contents of the ".env" file.
+     */
+    const envFile = join(baseEnvPath, '.env')
+    envFiles.push({
+      path: envFile,
+      contents: await this.#loadFile(envFile),
+    })
+
+    return envFiles
   }
 }
