@@ -53,8 +53,8 @@ export class EnvParser {
   #envContents: string
   #preferProcessEnv: boolean = true
 
-  constructor(envContents: string, options?: { preferProcessEnv: boolean }) {
-    if (options?.preferProcessEnv === false) {
+  constructor(envContents: string, options?: { ignoreProcessEnv: boolean }) {
+    if (options?.ignoreProcessEnv) {
       this.#preferProcessEnv = false
     }
 

@@ -42,8 +42,6 @@ Following is the list of loaded files. The array is ordered by the priority of t
 | 3rd | `.env.[NODE_ENV]` | Current environment | No | Loaded when `NODE_ENV` is set |
 | 4th | `.env` | All | Depends | Loaded in all the environments. You should `.gitignore` it when storing secrets in this file |
 
-> **Note**: Existing `process.env` variables have the top most priority over the variables defined in any of the files.
-
 ## EnvParser
 The `EnvParser` class is responsible for parsing the contents of the `.env` file(s) and converting them into an object.
 
@@ -52,21 +50,22 @@ import { EnvLoader, EnvParser } from '@adonisjs/env'
 
 const lookupPath = new URL('./', import.meta.url)
 const loader = new EnvLoader(lookupPath)
-const { envContents, currentEnvContents } = await loader.load()
+const envFiles = await loader.load()
 
-const envParser = new EnvParser(envContents)
-const currentEnvParser = new EnvParser(currentEnvContents)
+const envParser = new EnvParser(`
+  PORT=3000
+  HOST=localhost
+`)
 
-console.log(envParser.parse()) // { key: value }
-console.log(currentEnvParser.parse()) // { key: value }
+console.log(envParser.parse()) // { PORT: '3000', HOST: 'localhost' }
 ```
 
 The return value of `parser.parse` is an object with key-value pair. The parser also has support for interpolation.
 
-You can also instruct the parser to prefer existing `process.env` values when they exist. When `preferProcessEnv` is set to `true`, the value from the env contents will be discarded in favor of existing `process.env` value.
+By default, the parser prefers existing `process.env` values when they exist. However, you can instruct the parser to ignore existing `process.env` files as follows.
 
 ```ts
-new EnvParser(envContents, { preferProcessEnv: true })
+new EnvParser(envContents, { ignoreProcessEnv: true })
 ```
 
 ## Validating environment variables
@@ -94,6 +93,8 @@ validate(process.env)
 ```
 
 Following is a complete example of using the `EnvLoader`, `EnvParser`, and the validator to set up environment variables.
+
+> **Note**: Existing `process.env` variables have the top most priority over the variables defined in any of the files.
 
 ```ts
 import { EnvLoader, EnvParser, Env } from '@adonisjs/env'
