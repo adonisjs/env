@@ -10,7 +10,6 @@
 import { fileURLToPath } from 'node:url'
 import { readFile } from 'node:fs/promises'
 import { isAbsolute, join } from 'node:path'
-import { MissingEnvPathFileException } from './exceptions/missing_env_path_file.js'
 
 /**
  * Read the contents of one or more dot-env files. Following is how the files
@@ -44,7 +43,7 @@ export class EnvLoader {
   /**
    * Optionally read a file from the disk
    */
-  async #loadFile(filePath: string | URL, optional: boolean = true): Promise<string> {
+  async #loadFile(filePath: string | URL): Promise<string> {
     try {
       return await readFile(filePath, 'utf-8')
     } catch (error) {
@@ -52,13 +51,7 @@ export class EnvLoader {
         throw error
       }
 
-      if (optional) {
-        return ''
-      }
-
-      throw new MissingEnvPathFileException(`Cannot find env file from "ENV_PATH"`, {
-        cause: error,
-      })
+      return ''
     }
   }
 

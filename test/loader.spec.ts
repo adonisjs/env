@@ -55,6 +55,24 @@ test.group('Env loader', (group) => {
     expectTypeOf(envFiles).toEqualTypeOf<{ path: string; contents: string }[]>()
   })
 
+  test('use base path (as string) to load .env file', async ({ assert, expectTypeOf }) => {
+    await fsExtra.outputFile(join(BASE_PATH, '.env'), 'PORT=3000')
+
+    const envFiles = await new EnvLoader(BASE_PATH).load()
+    assert.deepEqual(envFiles, [
+      {
+        path: join(BASE_PATH, '.env.local'),
+        contents: '',
+      },
+      {
+        path: join(BASE_PATH, '.env'),
+        contents: 'PORT=3000',
+      },
+    ])
+
+    expectTypeOf(envFiles).toEqualTypeOf<{ path: string; contents: string }[]>()
+  })
+
   test('load env.[NODE_ENV] files', async ({ assert, expectTypeOf, cleanup }) => {
     process.env.NODE_ENV = 'production'
     cleanup(() => {
@@ -117,6 +135,25 @@ test.group('Env loader', (group) => {
 
   test('use custom ENV_PATH', async ({ assert, cleanup }) => {
     process.env.ENV_PATH = 'foo/bar'
+    cleanup(() => {
+      delete process.env.ENV_PATH
+    })
+
+    const envFiles = await new EnvLoader(BASE_URL).load()
+    assert.deepEqual(envFiles, [
+      {
+        path: join(BASE_PATH, 'foo/bar', '.env.local'),
+        contents: '',
+      },
+      {
+        path: join(BASE_PATH, 'foo/bar', '.env'),
+        contents: '',
+      },
+    ])
+  })
+
+  test('use custom absolute ENV_PATH', async ({ assert, cleanup }) => {
+    process.env.ENV_PATH = join(BASE_PATH, 'foo/bar')
     cleanup(() => {
       delete process.env.ENV_PATH
     })

@@ -67,4 +67,14 @@ test.group('Env', (group) => {
     assert.equal(env.get('PORT'), 3000)
     assert.equal(process.env.PORT, '3000')
   })
+
+  test('create validation function', async ({ assert, expectTypeOf }) => {
+    const validate = Env.rules({
+      PORT: Env.schema.number(),
+    })
+
+    const output = validate({ PORT: '3333' })
+    expectTypeOf(output).toEqualTypeOf<{ PORT: number }>()
+    assert.deepEqual(output, { PORT: 3333 })
+  })
 })

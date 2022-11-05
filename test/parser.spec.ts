@@ -24,6 +24,10 @@ test.group('Env Parser', () => {
       'REDIS_HOST=$HOST',
       'REDIS-USER=virk',
       'REDIS_PASSWORD=$PASSWORD',
+      'EMPTY_VALUE=',
+      'INVALID_VAR_REF=${FOO',
+      `KEY="--BEGIN CERTIFICATE--
+      --END CERTIFICATE--"`,
       'REDIS_URL=$REDIS_HOST://${REDIS-USER}@$REDIS_PASSWORD',
     ].join('\n')
 
@@ -39,8 +43,12 @@ test.group('Env Parser', () => {
       'PRICE': '$2.99',
       'NEW_PRICE': '2.99$',
       'REDIS_HOST': '127.0.0.1',
+      'EMPTY_VALUE': '',
       'REDIS-USER': 'virk',
       'REDIS_PASSWORD': 'pa$$word',
+      'INVALID_VAR_REF': '{FOO',
+      'KEY': `--BEGIN CERTIFICATE--
+      --END CERTIFICATE--`,
       'REDIS_URL': '127.0.0.1://virk@pa$$word',
     })
   })
