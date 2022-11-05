@@ -141,6 +141,21 @@ env.get('NODE_ENV') // is unknown, hence a string or undefined
 
 The above code may seem like a lot of work to set up environment variables. However, you have fine-grained control over each step. In the case of AdonisJS, all this boilerplate is hidden inside the framework's application bootstrapping logic.
 
+## Known Exceptions
+
+### E_INVALID_ENV_VARIABLES
+The exception is raised during environment variables validation exception. The exception is raised with `Validation failed for one or more environment variables` message.
+
+You can access the detailed error messages using the `error.cause` property.
+
+```ts
+try {
+  validate(envValues)
+} catch (error) {
+  console.log(error.cause)
+}
+```
+
 [gh-workflow-image]: https://img.shields.io/github/workflow/status/adonisjs/env/test?style=for-the-badge
 [gh-workflow-url]: https://github.com/adonisjs/env/actions/workflows/test.yml "Github action"
 
