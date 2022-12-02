@@ -10,3 +10,4 @@
 export { Env } from './src/env.js'
 export { EnvParser } from './src/parser.js'
 export { EnvLoader } from './src/loader.js'
+export { InvalidEnvVariablesException } from './src/exceptions/invalid_env_variables.js'
