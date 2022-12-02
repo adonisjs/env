@@ -47,6 +47,7 @@ export class EnvLoader {
     try {
       return await readFile(filePath, 'utf-8')
     } catch (error) {
+      /* c8 ignore next 3 */
       if (error.code !== 'ENOENT') {
         throw error
       }
