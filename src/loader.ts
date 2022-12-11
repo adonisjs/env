@@ -11,6 +11,8 @@ import { fileURLToPath } from 'node:url'
 import { readFile } from 'node:fs/promises'
 import { isAbsolute, join } from 'node:path'
 
+import debug from './debug.js'
+
 /**
  * Read the contents of one or more dot-env files. Following is how the files
  * are read.
@@ -65,6 +67,11 @@ export class EnvLoader {
     const NODE_ENV = process.env.NODE_ENV
     const envFiles: { path: string; contents: string }[] = []
 
+    if (debug.enabled) {
+      debug('ENV_PATH variable is %s', ENV_PATH ? 'set' : 'not set')
+      debug('NODE_ENV variable is %s', NODE_ENV ? 'set' : 'not set')
+    }
+
     /**
      * Base path to load .env files from
      */
@@ -73,6 +80,10 @@ export class EnvLoader {
         ? ENV_PATH
         : join(this.#appRoot, ENV_PATH)
       : this.#appRoot
+
+    if (debug.enabled) {
+      debug('dot-env files base path "%s"', baseEnvPath)
+    }
 
     /**
      * 1st

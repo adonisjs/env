@@ -7,13 +7,24 @@
  * file that was distributed with this source code.
  */
 
+import { join } from 'node:path'
 import { test } from '@japa/runner'
+import { fileURLToPath } from 'node:url'
+import { outputFile, remove } from 'fs-extra'
+
 import { Env } from '../src/env.js'
 
+const BASE_URL = new URL('./app/', import.meta.url)
+const BASE_PATH = fileURLToPath(BASE_URL)
+
 test.group('Env', (group) => {
-  group.each.setup(() => {
+  group.each.teardown(() => {
     delete process.env.ENV_PORT
     delete process.env.ENV_HOST
+  })
+
+  group.each.setup(() => {
+    return () => remove(BASE_PATH)
   })
 
   test('read values from process.env', ({ assert, expectTypeOf, cleanup }) => {
@@ -69,12 +80,32 @@ test.group('Env', (group) => {
   })
 
   test('create validation function', async ({ assert, expectTypeOf }) => {
-    const validate = Env.rules({
+    const validator = Env.rules({
       PORT: Env.schema.number(),
     })
 
-    const output = validate({ PORT: '3333' })
+    const output = validator.validate({ PORT: '3333' })
     expectTypeOf(output).toEqualTypeOf<{ PORT: number }>()
     assert.deepEqual(output, { PORT: 3333 })
+  })
+
+  test('validate and process environment variables', async ({ assert, expectTypeOf, cleanup }) => {
+    cleanup(() => {
+      delete process.env.PORT
+    })
+
+    await outputFile(
+      join(BASE_PATH, '.env'),
+      `
+    PORT=3000
+    `
+    )
+
+    const env = await Env.create(BASE_URL, {
+      PORT: Env.schema.number(),
+    })
+
+    assert.equal(env.get('PORT'), 3000)
+    expectTypeOf(env.get('PORT')).toEqualTypeOf<number>()
   })
 })

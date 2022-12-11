@@ -14,7 +14,7 @@
   },
   "scripts": {
     "pretest": "npm run lint",
-    "test": "c8 npm run vscode:test",
+    "test": "cross-env NODE_DEBUG=adonisjs:env c8 npm run vscode:test",
     "clean": "del-cli build",
     "compile": "npm run lint && npm run clean && tsc",
     "build": "npm run compile",
@@ -45,6 +45,7 @@
     "@types/fs-extra": "^9.0.13",
     "@types/node": "^18.11.13",
     "c8": "^7.12.0",
+    "cross-env": "^7.0.3",
     "del-cli": "^5.0.0",
     "eslint": "^8.29.0",
     "eslint-config-prettier": "^8.5.0",

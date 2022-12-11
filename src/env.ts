@@ -7,8 +7,9 @@
  * file that was distributed with this source code.
  */
 
-import { EnvValidator } from './validator.js'
 import { schema as envSchema, type ValidateFn } from '@poppinss/validator-lite'
+import { EnvValidator } from './validator.js'
+import { EnvProcessor } from './processor.js'
 
 /**
  * A wrapper over "process.env" with types information.
@@ -35,20 +36,36 @@ export class Env<EnvValues extends Record<string, any>> {
   }
 
   /**
+   * Create an instance of the env class by validating the
+   * environment variables. Also, the `.env` files are
+   * loaded from the appRoot
+   */
+  static async create<Schema extends { [key: string]: ValidateFn<unknown> }>(
+    appRoot: URL,
+    schema: Schema
+  ): Promise<
+    Env<{
+      [K in keyof Schema]: ReturnType<Schema[K]>
+    }>
+  > {
+    const values = await new EnvProcessor(appRoot).process()
+    const validator = this.rules(schema)
+    return new Env(validator.validate(values))
+  }
+
+  /**
    * The schema builder for defining validation rules
    */
   static schema = envSchema
 
   /**
    * Define the validation rules for validating environment
-   * variables. The return value is the validation
-   * function.
+   * variables. The return value is an instance of the
+   * env validator
    */
-  static rules<T extends { [key: string]: ValidateFn<unknown> }>(
-    schema: T
-  ): EnvValidator<T>['validate'] {
+  static rules<T extends { [key: string]: ValidateFn<unknown> }>(schema: T): EnvValidator<T> {
     const validator = new EnvValidator<T>(schema)
-    return validator.validate.bind(validator)
+    return validator
   }
 
   /**
