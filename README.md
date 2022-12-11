@@ -78,7 +78,7 @@ Once you have the parsed objects, you can optionally validate them against a pre
 ```ts
 import { Env } from '@adonisjs/env'
 
-const validate = Env.rules({
+const validator = Env.rules({
   PORT: Env.schema.number(),
   HOST: Env.schema.string({ format: 'host' })
 })
@@ -86,60 +86,28 @@ const validate = Env.rules({
 
 The `Env.schema` is a reference to the [@poppinss/validator-lite](https://github.com/poppinss/validator-lite) `schema` object. Make sure to go through the package README to view all the available methods and options.
 
-The `Env.rules` method returns a function to validate the environment variables. The return value is the validated object with type information inferred from the schema.
+The `Env.rules` method returns an instance of the validator to validate the environment variables. The return value is the validated object with type information inferred from the schema.
 
 ```ts
-validate(process.env)
+validator.validate(process.env)
 ```
 
-Following is a complete example of using the `EnvLoader`, `EnvParser`, and the validator to set up environment variables.
+Following is a complete example of loading dot-env files and validating them in one go.
 
 > **Note**: Existing `process.env` variables have the top most priority over the variables defined in any of the files.
 
 ```ts
-import { EnvLoader, EnvParser, Env } from '@adonisjs/env'
+import { Env } from '@adonisjs/env'
 
-const lookupPath = new URL('./', import.meta.url)
-const loader = new EnvLoader(lookupPath)
-const envFiles = await loader.load()
-
-let envValues = {}
-
-envFiles.forEach(({ contents }) => {
-  if (!contents.trim()) {
-    return
-  }
-
-  const values = new EnvParser(contents).parse()
-  Object.keys(values).forEach((key) => {
-    let value = process.env[key]
-
-    if (!value) {
-      value = values[key]
-      process.env[key] = values[key]
-    }
-
-    if (!envValues[key]) {
-      envValues[key] = value
-    }
-  })
-})
-
-// Now perform the validation
-const validate = Env.rules({
+const env = await Env.create(new URL('./', import.meta.url), {
   PORT: Env.schema.number(),
   HOST: Env.schema.string({ format: 'host' })
 })
-
-const validated = validate(envValues)
-const env = new Env(validated)
 
 env.get('PORT') // is a number
 env.get('HOST') // is a string
 env.get('NODE_ENV') // is unknown, hence a string or undefined
 ```
-
-The above code may seem like a lot of work to set up environment variables. However, you have fine-grained control over each step. In the case of AdonisJS, all this boilerplate is hidden inside the framework's application bootstrapping logic.
 
 ## Known Exceptions
 
