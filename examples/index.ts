@@ -15,7 +15,7 @@ const validator = Env.rules({
   CACHE_VIEWS: Env.schema.boolean(),
 })
 
-const validatedValues = validator(process.env)
+const validatedValues = validator.validate(process.env)
 const env = new Env(validatedValues)
 
 console.log(env.get('PORT'))
