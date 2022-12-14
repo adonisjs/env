@@ -38,8 +38,10 @@ export class EnvValidator<Schema extends { [key: string]: ValidateFn<unknown> }>
     const cause: string[] = []
     const validated = Object.keys(this.#schema).reduce(
       (result, key) => {
+        const value = process.env[key] || values[key]
+
         try {
-          result[key] = this.#schema[key](key, values[key]) as any
+          result[key] = this.#schema[key](key, value) as any
         } catch (error) {
           cause.push(`- ${error.message}`)
         }

@@ -90,7 +90,7 @@ export class EnvLoader {
      * The top most priority is given to the ".env.[NODE_ENV].local" file
      */
     if (NODE_ENV) {
-      const nodeEnvLocalFile = join(baseEnvPath, `.env.${process.env.NODE_ENV}.local`)
+      const nodeEnvLocalFile = join(baseEnvPath, `.env.${NODE_ENV}.local`)
       envFiles.push({
         path: nodeEnvLocalFile,
         contents: await this.#loadFile(nodeEnvLocalFile),
@@ -114,7 +114,7 @@ export class EnvLoader {
      * Next, we give priority to the ".env.[NODE_ENV]" file
      */
     if (NODE_ENV) {
-      const nodeEnvFile = join(baseEnvPath, `.env.${process.env.NODE_ENV}`)
+      const nodeEnvFile = join(baseEnvPath, `.env.${NODE_ENV}`)
       envFiles.push({
         path: nodeEnvFile,
         contents: await this.#loadFile(nodeEnvFile),

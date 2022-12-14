@@ -78,4 +78,26 @@ test.group('Env Validator', () => {
     assert.deepEqual(output, { PORT: 3333, HOST: 'localhost' })
     assert.deepEqual(values, { PORT: '3333', HOST: 'localhost' })
   })
+
+  test('refer existing env values when validating a key', async ({
+    assert,
+    expectTypeOf,
+    cleanup,
+  }) => {
+    process.env.PORT = '3333'
+    process.env.HOST = 'localhost'
+
+    cleanup(() => {
+      delete process.env.PORT
+      delete process.env.HOST
+    })
+
+    const validator = new EnvValidator({
+      PORT: schema.number(),
+    })
+
+    const output = validator.validate({})
+    expectTypeOf(output).toEqualTypeOf<{ PORT: number }>()
+    assert.deepEqual(output, { PORT: 3333 })
+  })
 })
