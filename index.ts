@@ -10,5 +10,5 @@
 export { Env } from './src/env.js'
 export { EnvParser } from './src/parser.js'
 export { EnvLoader } from './src/loader.js'
+export * as errors from './src/exceptions.js'
 export { EnvProcessor } from './src/processor.js'
-export { InvalidEnvVariablesException } from './src/exceptions/invalid_env_variables.js'

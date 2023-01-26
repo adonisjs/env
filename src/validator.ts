@@ -7,8 +7,10 @@
  * file that was distributed with this source code.
  */
 
+import type { Exception } from '@poppinss/utils'
 import { ValidateFn } from '@poppinss/validator-lite'
-import { InvalidEnvVariablesException } from './exceptions/invalid_env_variables.js'
+
+import { E_INVALID_ENV_VARIABLES } from './exceptions.js'
 
 /**
  * Exposes the API to validate environment variables against a
@@ -18,11 +20,11 @@ import { InvalidEnvVariablesException } from './exceptions/invalid_env_variables
  */
 export class EnvValidator<Schema extends { [key: string]: ValidateFn<unknown> }> {
   #schema: Schema
-  #error: InvalidEnvVariablesException
+  #error: Exception
 
   constructor(schema: Schema) {
     this.#schema = schema
-    this.#error = new InvalidEnvVariablesException()
+    this.#error = new E_INVALID_ENV_VARIABLES()
   }
 
   /**

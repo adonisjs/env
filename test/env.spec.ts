@@ -1,5 +1,5 @@
 /*
- * @poppinss/config
+ * @adonisjs/env
  *
  * (c) AdonisJS
  *
