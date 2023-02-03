@@ -7,13 +7,14 @@
  * file that was distributed with this source code.
  */
 
-import { createError } from '@poppinss/utils'
+import { Exception } from '@poppinss/utils'
 
 /**
  * Exception raised when one or more env variables
  * are invalid
  */
-export const E_INVALID_ENV_VARIABLES = createError(
-  'Validation failed for one or more environment variables',
-  'E_INVALID_ENV_VARIABLES'
-)
+export const E_INVALID_ENV_VARIABLES = class EnvValidationException extends Exception {
+  static message = 'Validation failed for one or more environment variables'
+  static code = 'E_INVALID_ENV_VARIABLES'
+  help: string = ''
+}

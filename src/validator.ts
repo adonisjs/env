@@ -37,7 +37,8 @@ export class EnvValidator<Schema extends { [key: string]: ValidateFn<unknown> }>
   validate(values: { [K: string]: string | undefined }): {
     [K in keyof Schema]: ReturnType<Schema[K]>
   } {
-    const cause: string[] = []
+    const help: string[] = []
+
     const validated = Object.keys(this.#schema).reduce(
       (result, key) => {
         const value = process.env[key] || values[key]
@@ -45,15 +46,15 @@ export class EnvValidator<Schema extends { [key: string]: ValidateFn<unknown> }>
         try {
           result[key] = this.#schema[key](key, value) as any
         } catch (error) {
-          cause.push(`- ${error.message}`)
+          help.push(`- ${error.message}`)
         }
         return result
       },
       { ...values }
     ) as { [K in keyof Schema]: ReturnType<Schema[K]> }
 
-    if (cause.length) {
-      this.#error.cause = cause.join('\n')
+    if (help.length) {
+      this.#error.help = help.join('\n')
       throw this.#error
     }
 

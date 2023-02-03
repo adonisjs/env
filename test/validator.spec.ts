@@ -9,6 +9,7 @@
 
 import { test } from '@japa/runner'
 import { schema } from '@poppinss/validator-lite'
+import { E_INVALID_ENV_VARIABLES } from '../src/exceptions.js'
 import { EnvValidator } from '../src/validator.js'
 
 test.group('Env Validator', () => {
@@ -34,7 +35,7 @@ test.group('Env Validator', () => {
   })
 
   test('return all validation errors under help text', async ({ assert }) => {
-    assert.plan(1)
+    assert.plan(2)
 
     const validator = new EnvValidator({
       PORT: schema.number(),
@@ -44,7 +45,8 @@ test.group('Env Validator', () => {
     try {
       validator.validate({})
     } catch (error) {
-      assert.deepEqual(error.cause.split('\n'), [
+      assert.instanceOf(error, E_INVALID_ENV_VARIABLES)
+      assert.deepEqual(error.help.split('\n'), [
         '- E_MISSING_ENV_VALUE: Missing environment variable "PORT"',
         '- E_MISSING_ENV_VALUE: Missing environment variable "HOST"',
       ])
