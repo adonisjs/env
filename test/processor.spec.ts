@@ -7,35 +7,25 @@
  * file that was distributed with this source code.
  */
 
-import { join } from 'node:path'
 import { test } from '@japa/runner'
-import { fileURLToPath } from 'node:url'
-import { outputFile, remove } from 'fs-extra'
 import { EnvProcessor } from '../src/processor.js'
 
-const BASE_URL = new URL('./app/', import.meta.url)
-const BASE_PATH = fileURLToPath(BASE_URL)
-
-test.group('Env processor', (group) => {
-  group.each.setup(() => {
-    return () => remove(BASE_PATH)
-  })
-
-  test('process .env file', async ({ assert, cleanup }) => {
+test.group('Env processor', () => {
+  test('process .env file', async ({ assert, cleanup, fs }) => {
     cleanup(() => {
       delete process.env.PORT
       delete process.env.HOST
     })
 
-    await outputFile(
-      join(BASE_PATH, '.env'),
+    await fs.create(
+      '.env',
       `
     HOST=localhost
     PORT=3000
     `
     )
 
-    const app = new EnvProcessor(BASE_URL)
+    const app = new EnvProcessor(fs.baseUrl)
 
     const values = await app.process()
     assert.equal(process.env.HOST, 'localhost')
@@ -43,29 +33,29 @@ test.group('Env processor', (group) => {
     assert.deepEqual(values, { HOST: 'localhost', PORT: '3000' })
   })
 
-  test('process .env.local and .env files', async ({ assert, cleanup }) => {
+  test('process .env.local and .env files', async ({ assert, cleanup, fs }) => {
     cleanup(() => {
       delete process.env.PORT
       delete process.env.HOST
     })
 
-    await outputFile(
-      join(BASE_PATH, '.env'),
+    await fs.create(
+      '.env',
       `
     HOST=localhost
     PORT=3000
     `
     )
 
-    await outputFile(
-      join(BASE_PATH, '.env.local'),
+    await fs.create(
+      '.env.local',
       `
       HOST=localhost
       PORT=4000
       `
     )
 
-    const app = new EnvProcessor(BASE_URL)
+    const app = new EnvProcessor(fs.baseUrl)
 
     const values = await app.process()
     assert.equal(process.env.HOST, 'localhost')
@@ -73,7 +63,7 @@ test.group('Env processor', (group) => {
     assert.deepEqual(values, { HOST: 'localhost', PORT: '4000' })
   })
 
-  test('process .env.local and .env.NODE_ENV.local files', async ({ assert, cleanup }) => {
+  test('process .env.local and .env.NODE_ENV.local files', async ({ assert, cleanup, fs }) => {
     process.env.NODE_ENV = 'development'
 
     cleanup(() => {
@@ -82,23 +72,23 @@ test.group('Env processor', (group) => {
       delete process.env.NODE_ENV
     })
 
-    await outputFile(
-      join(BASE_PATH, '.env.development.local'),
+    await fs.create(
+      '.env.development.local',
       `
     HOST=localhost
     PORT=3000
     `
     )
 
-    await outputFile(
-      join(BASE_PATH, '.env.local'),
+    await fs.create(
+      '.env.local',
       `
       HOST=localhost
       PORT=4000
       `
     )
 
-    const app = new EnvProcessor(BASE_URL)
+    const app = new EnvProcessor(fs.baseUrl)
 
     const values = await app.process()
     assert.equal(process.env.HOST, 'localhost')

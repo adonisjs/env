@@ -9,8 +9,8 @@
 
 import { test } from '@japa/runner'
 import { schema } from '@poppinss/validator-lite'
-import { E_INVALID_ENV_VARIABLES } from '../src/exceptions.js'
 import { EnvValidator } from '../src/validator.js'
+import { E_INVALID_ENV_VARIABLES } from '../src/exceptions.js'
 
 test.group('Env Validator', () => {
   test('validate values against pre-defined schema', async ({ assert, expectTypeOf }) => {

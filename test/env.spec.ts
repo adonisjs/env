@@ -7,24 +7,13 @@
  * file that was distributed with this source code.
  */
 
-import { join } from 'node:path'
 import { test } from '@japa/runner'
-import { fileURLToPath } from 'node:url'
-import { outputFile, remove } from 'fs-extra'
-
 import { Env } from '../src/env.js'
-
-const BASE_URL = new URL('./app/', import.meta.url)
-const BASE_PATH = fileURLToPath(BASE_URL)
 
 test.group('Env', (group) => {
   group.each.teardown(() => {
     delete process.env.ENV_PORT
     delete process.env.ENV_HOST
-  })
-
-  group.each.setup(() => {
-    return () => remove(BASE_PATH)
   })
 
   test('read values from process.env', ({ assert, expectTypeOf, cleanup }) => {
@@ -89,19 +78,18 @@ test.group('Env', (group) => {
     assert.deepEqual(output, { PORT: 3333 })
   })
 
-  test('validate and process environment variables', async ({ assert, expectTypeOf, cleanup }) => {
+  test('validate and process environment variables', async ({
+    assert,
+    expectTypeOf,
+    cleanup,
+    fs,
+  }) => {
     cleanup(() => {
       delete process.env.PORT
     })
 
-    await outputFile(
-      join(BASE_PATH, '.env'),
-      `
-    PORT=3000
-    `
-    )
-
-    const env = await Env.create(BASE_URL, {
+    await fs.create('.env', 'PORT=3000')
+    const env = await Env.create(fs.baseUrl, {
       PORT: Env.schema.number(),
     })
 
