@@ -18,14 +18,18 @@ test.group('Env loader', () => {
       {
         path: join(fs.basePath, '.env.local'),
         contents: '',
+        fileExists: false,
       },
       {
         path: join(fs.basePath, '.env'),
         contents: '',
+        fileExists: false,
       },
     ])
 
-    expectTypeOf(envFiles).toEqualTypeOf<{ path: string; contents: string }[]>()
+    expectTypeOf(envFiles).toEqualTypeOf<
+      { path: string; contents: string; fileExists: boolean }[]
+    >()
   })
 
   test('get contents of the .env file from the app root', async ({ assert, expectTypeOf, fs }) => {
@@ -36,14 +40,18 @@ test.group('Env loader', () => {
       {
         path: join(fs.basePath, '.env.local'),
         contents: '',
+        fileExists: false,
       },
       {
         path: join(fs.basePath, '.env'),
         contents: 'PORT=3000',
+        fileExists: true,
       },
     ])
 
-    expectTypeOf(envFiles).toEqualTypeOf<{ path: string; contents: string }[]>()
+    expectTypeOf(envFiles).toEqualTypeOf<
+      { path: string; contents: string; fileExists: boolean }[]
+    >()
   })
 
   test('use base path (as string) to load .env file', async ({ assert, expectTypeOf, fs }) => {
@@ -54,14 +62,18 @@ test.group('Env loader', () => {
       {
         path: join(fs.basePath, '.env.local'),
         contents: '',
+        fileExists: false,
       },
       {
         path: join(fs.basePath, '.env'),
         contents: 'PORT=3000',
+        fileExists: true,
       },
     ])
 
-    expectTypeOf(envFiles).toEqualTypeOf<{ path: string; contents: string }[]>()
+    expectTypeOf(envFiles).toEqualTypeOf<
+      { path: string; contents: string; fileExists: boolean }[]
+    >()
   })
 
   test('load env.[NODE_ENV] files', async ({ assert, expectTypeOf, cleanup, fs }) => {
@@ -78,22 +90,28 @@ test.group('Env loader', () => {
       {
         path: join(fs.basePath, '.env.production.local'),
         contents: '',
+        fileExists: false,
       },
       {
         path: join(fs.basePath, '.env.local'),
         contents: '',
+        fileExists: false,
       },
       {
         path: join(fs.basePath, '.env.production'),
         contents: 'PORT=4000',
+        fileExists: true,
       },
       {
         path: join(fs.basePath, '.env'),
         contents: 'PORT=3000',
+        fileExists: true,
       },
     ])
 
-    expectTypeOf(envFiles).toEqualTypeOf<{ path: string; contents: string }[]>()
+    expectTypeOf(envFiles).toEqualTypeOf<
+      { path: string; contents: string; fileExists: boolean }[]
+    >()
   })
 
   test('do not load .env.local in testing env', async ({ assert, expectTypeOf, cleanup, fs }) => {
@@ -110,18 +128,23 @@ test.group('Env loader', () => {
       {
         path: join(fs.basePath, '.env.testing.local'),
         contents: '',
+        fileExists: false,
       },
       {
         path: join(fs.basePath, '.env.testing'),
         contents: 'PORT=4000',
+        fileExists: true,
       },
       {
         path: join(fs.basePath, '.env'),
         contents: 'PORT=3000',
+        fileExists: true,
       },
     ])
 
-    expectTypeOf(envFiles).toEqualTypeOf<{ path: string; contents: string }[]>()
+    expectTypeOf(envFiles).toEqualTypeOf<
+      { path: string; contents: string; fileExists: boolean }[]
+    >()
   })
 
   test('use custom ENV_PATH', async ({ assert, cleanup, fs }) => {
@@ -135,10 +158,12 @@ test.group('Env loader', () => {
       {
         path: join(fs.basePath, 'foo/bar', '.env.local'),
         contents: '',
+        fileExists: false,
       },
       {
         path: join(fs.basePath, 'foo/bar', '.env'),
         contents: '',
+        fileExists: false,
       },
     ])
   })
@@ -154,10 +179,12 @@ test.group('Env loader', () => {
       {
         path: join(fs.basePath, 'foo/bar', '.env.local'),
         contents: '',
+        fileExists: false,
       },
       {
         path: join(fs.basePath, 'foo/bar', '.env'),
         contents: '',
+        fileExists: false,
       },
     ])
   })

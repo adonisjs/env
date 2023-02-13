@@ -37,24 +37,27 @@ import debug from './debug.js'
  */
 export class EnvLoader {
   #appRoot: string
+  #loadExampleFile: boolean
 
-  constructor(appRoot: string | URL) {
+  constructor(appRoot: string | URL, loadExampleFile: boolean = false) {
     this.#appRoot = typeof appRoot === 'string' ? appRoot : fileURLToPath(appRoot)
+    this.#loadExampleFile = loadExampleFile
   }
 
   /**
    * Optionally read a file from the disk
    */
-  async #loadFile(filePath: string | URL): Promise<string> {
+  async #loadFile(filePath: string | URL): Promise<{ fileExists: boolean; contents: string }> {
     try {
-      return await readFile(filePath, 'utf-8')
+      const contents = await readFile(filePath, 'utf-8')
+      return { contents, fileExists: true }
     } catch (error) {
       /* c8 ignore next 3 */
       if (error.code !== 'ENOENT') {
         throw error
       }
 
-      return ''
+      return { contents: '', fileExists: false }
     }
   }
 
@@ -62,10 +65,10 @@ export class EnvLoader {
    * Load contents of the main dot-env file and the current
    * environment dot-env file
    */
-  async load() {
+  async load(): Promise<{ contents: string; path: string; fileExists: boolean }[]> {
     const ENV_PATH = process.env.ENV_PATH
     const NODE_ENV = process.env.NODE_ENV
-    const envFiles: { path: string; contents: string }[] = []
+    const envFiles: { path: string; contents: string; fileExists: boolean }[] = []
 
     if (debug.enabled) {
       debug('ENV_PATH variable is %s', ENV_PATH ? 'set' : 'not set')
@@ -93,7 +96,7 @@ export class EnvLoader {
       const nodeEnvLocalFile = join(baseEnvPath, `.env.${NODE_ENV}.local`)
       envFiles.push({
         path: nodeEnvLocalFile,
-        contents: await this.#loadFile(nodeEnvLocalFile),
+        ...(await this.#loadFile(nodeEnvLocalFile)),
       })
     }
 
@@ -105,7 +108,7 @@ export class EnvLoader {
       const envLocalFile = join(baseEnvPath, '.env.local')
       envFiles.push({
         path: envLocalFile,
-        contents: await this.#loadFile(envLocalFile),
+        ...(await this.#loadFile(envLocalFile)),
       })
     }
 
@@ -117,7 +120,7 @@ export class EnvLoader {
       const nodeEnvFile = join(baseEnvPath, `.env.${NODE_ENV}`)
       envFiles.push({
         path: nodeEnvFile,
-        contents: await this.#loadFile(nodeEnvFile),
+        ...(await this.#loadFile(nodeEnvFile)),
       })
     }
 
@@ -127,8 +130,19 @@ export class EnvLoader {
     const envFile = join(baseEnvPath, '.env')
     envFiles.push({
       path: envFile,
-      contents: await this.#loadFile(envFile),
+      ...(await this.#loadFile(envFile)),
     })
+
+    /**
+     * Load example file
+     */
+    if (this.#loadExampleFile) {
+      const envExampleFile = join(baseEnvPath, '.env.example')
+      envFiles.push({
+        path: envExampleFile,
+        ...(await this.#loadFile(envExampleFile)),
+      })
+    }
 
     return envFiles
   }

@@ -63,7 +63,8 @@
   "dependencies": {
     "@poppinss/utils": "^6.5.0-0",
     "@poppinss/validator-lite": "^1.0.2",
-    "dotenv": "^16.0.3"
+    "dotenv": "^16.0.3",
+    "split-lines": "^3.0.0"
   },
   "repository": {
     "type": "git",

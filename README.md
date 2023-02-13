@@ -109,6 +109,20 @@ env.get('HOST') // is a string
 env.get('NODE_ENV') // is unknown, hence a string or undefined
 ```
 
+## Env editor
+The Env editor can be used to edit dot-env files and persist changes on disk. Only the `.env` and `.env.example` files are updated (if exists).
+
+```ts
+import { EnvEditor } from '@adonisjs/env'
+
+const editor = await EnvEditor.create(new URL('./', import.meta.url))
+editor.add('PORT', 3000)
+editor.add('HOST', 'localhost')
+
+// Write changes on disk
+await editor.save()
+```
+
 ## Known Exceptions
 
 ### E_INVALID_ENV_VARIABLES
