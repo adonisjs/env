@@ -46,12 +46,7 @@ Following is the list of loaded files. The array is ordered by the priority of t
 The `EnvParser` class is responsible for parsing the contents of the `.env` file(s) and converting them into an object.
 
 ```ts
-import { EnvLoader, EnvParser } from '@adonisjs/env'
-
-const lookupPath = new URL('./', import.meta.url)
-const loader = new EnvLoader(lookupPath)
-const envFiles = await loader.load()
-
+import { EnvParser } from '@adonisjs/env'
 const envParser = new EnvParser(`
   PORT=3000
   HOST=localhost
@@ -91,6 +86,8 @@ The `Env.rules` method returns an instance of the validator to validate the envi
 ```ts
 validator.validate(process.env)
 ```
+
+## Complete example
 
 Following is a complete example of loading dot-env files and validating them in one go.
 
