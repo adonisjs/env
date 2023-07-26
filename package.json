@@ -1,6 +1,6 @@
 {
   "name": "@adonisjs/env",
-  "version": "4.2.0-3",
+  "version": "4.2.0-4",
   "description": "Environment variable manager for Node.js",
   "main": "build/index.js",
   "type": "module",
