@@ -10,7 +10,8 @@
     "build/index.js"
   ],
   "exports": {
-    ".": "./build/index.js"
+    ".": "./build/index.js",
+    "./editor": "./build/src/editor.js"
   },
   "engines": {
     "node": ">=18.16.0"
