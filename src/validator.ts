@@ -10,7 +10,7 @@
 import type { Exception } from '@poppinss/utils'
 import { ValidateFn } from '@poppinss/validator-lite'
 
-import { E_INVALID_ENV_VARIABLES } from './exceptions.js'
+import { E_INVALID_ENV_VARIABLES } from './errors.js'
 
 /**
  * Exposes the API to validate environment variables against a
