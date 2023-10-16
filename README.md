@@ -110,7 +110,7 @@ env.get('NODE_ENV') // is unknown, hence a string or undefined
 The Env editor can be used to edit dot-env files and persist changes on disk. Only the `.env` and `.env.example` files are updated (if exists).
 
 ```ts
-import { EnvEditor } from '@adonisjs/env'
+import { EnvEditor } from '@adonisjs/env/editor'
 
 const editor = await EnvEditor.create(new URL('./', import.meta.url))
 editor.add('PORT', 3000)
