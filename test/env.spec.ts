@@ -96,4 +96,31 @@ test.group('Env', (group) => {
     assert.equal(env.get('PORT'), 3000)
     expectTypeOf(env.get('PORT')).toEqualTypeOf<number>()
   })
+
+  test('validate and process environment variables with custom hook', async ({
+    assert,
+    expectTypeOf,
+    cleanup,
+    fs,
+  }) => {
+    cleanup(() => {
+      delete process.env.PORT
+    })
+
+    await fs.create('.env', 'PORT=3000')
+    const env = await Env.create(
+      fs.baseUrl,
+      {
+        PORT: Env.schema.string(),
+      },
+      {
+        onVariableRead(_key, _value) {
+          return 'abc'
+        },
+      }
+    )
+
+    assert.equal(env.get('PORT'), 'abc')
+    expectTypeOf(env.get('PORT')).toEqualTypeOf<string>()
+  })
 })

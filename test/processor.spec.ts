@@ -33,6 +33,32 @@ test.group('Env processor', () => {
     assert.deepEqual(values, { HOST: 'localhost', PORT: '3000' })
   })
 
+  test('process .env file with custom hook', async ({ assert, cleanup, fs }) => {
+    cleanup(() => {
+      delete process.env.PORT
+      delete process.env.HOST
+    })
+
+    await fs.create(
+      '.env',
+      `
+    HOST=localhost
+    PORT=3000
+    `
+    )
+
+    const app = new EnvProcessor(fs.baseUrl, {
+      onVariableRead(_key, _value) {
+        return '1'
+      },
+    })
+
+    const values = await app.process()
+    assert.equal(process.env.HOST, '1')
+    assert.equal(process.env.PORT, '1')
+    assert.deepEqual(values, { HOST: '1', PORT: '1' })
+  })
+
   test('process .env.local and .env files', async ({ assert, cleanup, fs }) => {
     cleanup(() => {
       delete process.env.PORT

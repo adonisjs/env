@@ -20,14 +20,20 @@ export class EnvProcessor {
    */
   #appRoot: URL
 
-  constructor(appRoot: URL) {
+  #onVariableRead?: (key: string, value: string) => string | Promise<string>
+
+  constructor(
+    appRoot: URL,
+    options?: { onVariableRead?: (key: string, value: string) => string | Promise<string> }
+  ) {
     this.#appRoot = appRoot
+    this.#onVariableRead = options?.onVariableRead
   }
 
   /**
    * Parse env variables from raw contents
    */
-  #processContents(envContents: string, store: Record<string, any>) {
+  async #processContents(envContents: string, store: Record<string, any>) {
     /**
      * Collected env variables
      */
@@ -35,7 +41,10 @@ export class EnvProcessor {
       return store
     }
 
-    const values = new EnvParser(envContents).parse()
+    const parser = new EnvParser(envContents, {
+      onVariableRead: this.#onVariableRead,
+    })
+    const values = await parser.parse()
     Object.keys(values).forEach((key) => {
       let value = process.env[key]
 
@@ -70,7 +79,7 @@ export class EnvProcessor {
      * Collected env variables
      */
     const envValues: Record<string, any> = {}
-    envFiles.forEach(({ contents }) => this.#processContents(contents, envValues))
+    await Promise.all(envFiles.map(({ contents }) => this.#processContents(contents, envValues)))
     return envValues
   }
 

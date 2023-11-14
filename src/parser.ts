@@ -52,10 +52,21 @@ import dotenv, { DotenvParseOutput } from 'dotenv'
 export class EnvParser {
   #envContents: string
   #preferProcessEnv: boolean = true
+  #onVariableRead?: (key: string, value: string) => string | Promise<string>
 
-  constructor(envContents: string, options?: { ignoreProcessEnv: boolean }) {
+  constructor(
+    envContents: string,
+    options?: {
+      ignoreProcessEnv?: boolean
+      onVariableRead?: (key: string, value: string) => string | Promise<string>
+    }
+  ) {
     if (options?.ignoreProcessEnv) {
       this.#preferProcessEnv = false
+    }
+
+    if (options?.onVariableRead) {
+      this.#onVariableRead = options.onVariableRead
     }
 
     this.#envContents = envContents
@@ -174,12 +185,21 @@ export class EnvParser {
   /**
    * Parse the env string to an object of environment variables.
    */
-  parse(): DotenvParseOutput {
+  async parse(): Promise<DotenvParseOutput> {
     const envCollection = dotenv.parse(this.#envContents.trim())
 
-    return Object.keys(envCollection).reduce<DotenvParseOutput>((result, key) => {
-      result[key] = this.#getValue(key, envCollection)
-      return result
-    }, {})
+    let result: DotenvParseOutput = {}
+
+    for (const key in envCollection) {
+      const value = this.#getValue(key, envCollection)
+
+      if (this.#onVariableRead) {
+        result[key] = await this.#onVariableRead(key, value)
+      } else {
+        result[key] = value
+      }
+    }
+
+    return result
   }
 }

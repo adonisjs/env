@@ -42,13 +42,18 @@ export class Env<EnvValues extends Record<string, any>> {
    */
   static async create<Schema extends { [key: string]: ValidateFn<unknown> }>(
     appRoot: URL,
-    schema: Schema
+    schema: Schema,
+    options?: { onVariableRead?: (key: string, value: string) => string | Promise<string> }
   ): Promise<
     Env<{
       [K in keyof Schema]: ReturnType<Schema[K]>
     }>
   > {
-    const values = await new EnvProcessor(appRoot).process()
+    const processor = new EnvProcessor(appRoot, {
+      onVariableRead: options?.onVariableRead,
+    })
+
+    const values = await processor.process()
     const validator = this.rules(schema)
     return new Env(validator.validate(values))
   }

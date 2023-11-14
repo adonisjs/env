@@ -32,7 +32,7 @@ test.group('Env Parser', () => {
     ].join('\n')
 
     const parser = new EnvParser(envString)
-    const parsed = parser.parse()
+    const parsed = await parser.parse()
     expectTypeOf(parsed).toEqualTypeOf<DotenvParseOutput>()
     assert.deepEqual(parsed, {
       'PORT': '3333',
@@ -66,7 +66,7 @@ test.group('Env Parser', () => {
     const envString = ['ENV_USER=romain', 'REDIS-USER=$ENV_USER'].join('\n')
     const parser = new EnvParser(envString, { ignoreProcessEnv: true })
 
-    const parsed = parser.parse()
+    const parsed = await parser.parse()
     expectTypeOf(parsed).toEqualTypeOf<DotenvParseOutput>()
     assert.deepEqual(parsed, {
       'ENV_USER': 'romain',
@@ -87,7 +87,7 @@ test.group('Env Parser', () => {
     const envString = ['ENV_USER=romain', 'REDIS-USER=$ENV_USER'].join('\n')
     const parser = new EnvParser(envString)
 
-    const parsed = parser.parse()
+    const parsed = await parser.parse()
     expectTypeOf(parsed).toEqualTypeOf<DotenvParseOutput>()
     assert.deepEqual(parsed, {
       'ENV_USER': 'virk',
@@ -108,10 +108,26 @@ test.group('Env Parser', () => {
     const envString = ['REDIS-USER=$ENV_USER'].join('\n')
     const parser = new EnvParser(envString)
 
-    const parsed = parser.parse()
+    const parsed = await parser.parse()
     expectTypeOf(parsed).toEqualTypeOf<DotenvParseOutput>()
     assert.deepEqual(parsed, {
       'REDIS-USER': 'virk',
+    })
+  })
+
+  test('use custom hook to interpolate values', async ({ assert }) => {
+    const envString = ['PORT=3333', 'HOST=127.0.0.1'].join('\n')
+
+    const parser = new EnvParser(envString, {
+      onVariableRead(_key, _value) {
+        return '1'
+      },
+    })
+    const parsed = await parser.parse()
+
+    assert.deepEqual(parsed, {
+      PORT: '1',
+      HOST: '1',
     })
   })
 })
