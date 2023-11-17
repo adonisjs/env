@@ -16,6 +16,25 @@ test.group('Env', (group) => {
     delete process.env.ENV_HOST
   })
 
+  test('define identifier', async ({ assert, cleanup, fs }) => {
+    assert.plan(1)
+
+    cleanup(() => {
+      Env.removeIdentifier('file')
+    })
+
+    Env.identifier('file', (_value: string) => {
+      assert.isTrue(true)
+
+      return '3000'
+    })
+
+    await fs.create('.env', 'PORT=file:romain')
+    await Env.create(fs.baseUrl, {
+      PORT: Env.schema.number(),
+    })
+  })
+
   test('read values from process.env', ({ assert, expectTypeOf, cleanup }) => {
     process.env.PORT = '4000'
     cleanup(() => {

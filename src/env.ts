@@ -10,6 +10,7 @@
 import { schema as envSchema, type ValidateFn } from '@poppinss/validator-lite'
 import { EnvValidator } from './validator.js'
 import { EnvProcessor } from './processor.js'
+import { EnvParser } from './parser.js'
 
 /**
  * A wrapper over "process.env" with types information.
@@ -51,6 +52,21 @@ export class Env<EnvValues extends Record<string, any>> {
     const values = await new EnvProcessor(appRoot).process()
     const validator = this.rules(schema)
     return new Env(validator.validate(values))
+  }
+
+  /**
+   * Define an identifier for any environment value. The callback is invoked
+   * when the value match the identifier to modify its interpolation.
+   */
+  static identifier(name: string, callback: (value: string) => Promise<string> | string): void {
+    EnvParser.identifier(name, callback)
+  }
+
+  /**
+   * Remove an identifier
+   */
+  static removeIdentifier(name: string): void {
+    EnvParser.removeIdentifier(name)
   }
 
   /**

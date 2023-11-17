@@ -8,6 +8,7 @@
  */
 
 import dotenv, { DotenvParseOutput } from 'dotenv'
+import { E_IDENTIFIER_ALREADY_DEFINED } from './errors.js'
 
 /**
  * Env parser parses the environment variables from a string formatted
@@ -52,6 +53,7 @@ import dotenv, { DotenvParseOutput } from 'dotenv'
 export class EnvParser {
   #envContents: string
   #preferProcessEnv: boolean = true
+  static #identifiers: Record<string, (value: string) => Promise<string> | string> = {}
 
   constructor(envContents: string, options?: { ignoreProcessEnv: boolean }) {
     if (options?.ignoreProcessEnv) {
@@ -59,6 +61,25 @@ export class EnvParser {
     }
 
     this.#envContents = envContents
+  }
+
+  /**
+   * Define an identifier for any environment value. The callback is invoked
+   * when the value match the identifier to modify its interpolation.
+   */
+  static identifier(name: string, callback: (value: string) => Promise<string> | string): void {
+    if (this.#identifiers[name]) {
+      throw new E_IDENTIFIER_ALREADY_DEFINED([name])
+    }
+
+    this.#identifiers[name] = callback
+  }
+
+  /**
+   * Remove an identifier
+   */
+  static removeIdentifier(name: string): void {
+    delete this.#identifiers[name]
   }
 
   /**
@@ -174,12 +195,31 @@ export class EnvParser {
   /**
    * Parse the env string to an object of environment variables.
    */
-  parse(): DotenvParseOutput {
+  async parse(): Promise<DotenvParseOutput> {
     const envCollection = dotenv.parse(this.#envContents.trim())
+    const identifiers = Object.keys(EnvParser.#identifiers)
+    let result: DotenvParseOutput = {}
 
-    return Object.keys(envCollection).reduce<DotenvParseOutput>((result, key) => {
-      result[key] = this.#getValue(key, envCollection)
-      return result
-    }, {})
+    $keyLoop: for (const key in envCollection) {
+      const value = this.#getValue(key, envCollection)
+
+      if (value.includes(':')) {
+        for (const identifier of identifiers) {
+          if (value.startsWith(identifier)) {
+            result[key] = await EnvParser.#identifiers[identifier](
+              value.substring(identifier.length + 1)
+            )
+
+            continue $keyLoop
+          }
+        }
+
+        result[key] = value
+      } else {
+        result[key] = value
+      }
+    }
+
+    return result
   }
 }

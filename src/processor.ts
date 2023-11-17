@@ -27,7 +27,7 @@ export class EnvProcessor {
   /**
    * Parse env variables from raw contents
    */
-  #processContents(envContents: string, store: Record<string, any>) {
+  async #processContents(envContents: string, store: Record<string, any>) {
     /**
      * Collected env variables
      */
@@ -35,7 +35,9 @@ export class EnvProcessor {
       return store
     }
 
-    const values = new EnvParser(envContents).parse()
+    const parser = new EnvParser(envContents)
+    const values = await parser.parse()
+
     Object.keys(values).forEach((key) => {
       let value = process.env[key]
 
@@ -70,7 +72,7 @@ export class EnvProcessor {
      * Collected env variables
      */
     const envValues: Record<string, any> = {}
-    envFiles.forEach(({ contents }) => this.#processContents(contents, envValues))
+    await Promise.all(envFiles.map(({ contents }) => this.#processContents(contents, envValues)))
     return envValues
   }
 
