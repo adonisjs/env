@@ -72,6 +72,29 @@ test.group('Env Parser', () => {
     })
   })
 
+  test('identifier is used only when complete value is matched', async ({
+    assert,
+    cleanup,
+    expectTypeOf,
+  }) => {
+    cleanup(() => {
+      EnvParser.removeIdentifier('file')
+    })
+
+    EnvParser.identifier('file', (_value: string) => {
+      return '3000'
+    })
+
+    const envString = ['ENV_USER=file_romain:romain'].join('\n')
+    const parser = new EnvParser(envString)
+    const parsed = await parser.parse()
+
+    expectTypeOf(parsed).toEqualTypeOf<DotenvParseOutput>()
+    assert.deepEqual(parsed, {
+      ENV_USER: 'file_romain:romain',
+    })
+  })
+
   test('throw when identifier is already defined', async ({ assert, cleanup }) => {
     cleanup(() => {
       EnvParser.removeIdentifier('file')

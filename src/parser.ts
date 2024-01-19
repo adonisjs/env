@@ -205,7 +205,7 @@ export class EnvParser {
 
       if (value.includes(':')) {
         for (const identifier of identifiers) {
-          if (value.startsWith(identifier)) {
+          if (value.startsWith(`${identifier}:`)) {
             result[key] = await EnvParser.#identifiers[identifier](
               value.substring(identifier.length + 1)
             )
