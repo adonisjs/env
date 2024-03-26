@@ -212,6 +212,12 @@ export class EnvParser {
 
             continue $keyLoop
           }
+
+          if (value.startsWith(`${identifier}\\:`)) {
+            result[key] = identifier + value.substring(identifier.length + 1)
+
+            continue $keyLoop
+          }
         }
 
         result[key] = value
