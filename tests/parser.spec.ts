@@ -32,7 +32,7 @@ test.group('Env Parser', () => {
     ].join('\n')
 
     const parser = new EnvParser(envString)
-    const parsed = parser.parse()
+    const parsed = await parser.parse()
     expectTypeOf(parsed).toEqualTypeOf<DotenvParseOutput>()
     assert.deepEqual(parsed, {
       'PORT': '3333',
@@ -53,6 +53,80 @@ test.group('Env Parser', () => {
     })
   })
 
+  test('define identifier', async ({ assert, cleanup, expectTypeOf }) => {
+    cleanup(() => {
+      EnvParser.removeIdentifier('file')
+    })
+
+    EnvParser.identifier('file', (_value: string) => {
+      return '3000'
+    })
+
+    const envString = ['ENV_USER=file:romain'].join('\n')
+    const parser = new EnvParser(envString)
+    const parsed = await parser.parse()
+
+    expectTypeOf(parsed).toEqualTypeOf<DotenvParseOutput>()
+    assert.deepEqual(parsed, {
+      ENV_USER: '3000',
+    })
+  })
+
+  test('identifier is used only when complete value is matched', async ({
+    assert,
+    cleanup,
+    expectTypeOf,
+  }) => {
+    cleanup(() => {
+      EnvParser.removeIdentifier('file')
+    })
+
+    EnvParser.identifier('file', (_value: string) => {
+      return '3000'
+    })
+
+    const envString = ['ENV_USER=file_romain:romain'].join('\n')
+    const parser = new EnvParser(envString)
+    const parsed = await parser.parse()
+
+    expectTypeOf(parsed).toEqualTypeOf<DotenvParseOutput>()
+    assert.deepEqual(parsed, {
+      ENV_USER: 'file_romain:romain',
+    })
+  })
+
+  test('allows to escape the identifier', async ({ assert, cleanup, expectTypeOf }) => {
+    cleanup(() => {
+      EnvParser.removeIdentifier('file')
+    })
+
+    EnvParser.identifier('file', (_value: string) => {
+      return '3000'
+    })
+
+    const envString = ['ENV_USER=file\\:///root/app/user.js'].join('\n')
+    const parser = new EnvParser(envString)
+    const parsed = await parser.parse()
+
+    expectTypeOf(parsed).toEqualTypeOf<DotenvParseOutput>()
+    assert.deepEqual(parsed, {
+      ENV_USER: 'file:///root/app/user.js',
+    })
+  })
+
+  test('throw when identifier is already defined', async ({ assert, cleanup }) => {
+    cleanup(() => {
+      EnvParser.removeIdentifier('file')
+    })
+
+    EnvParser.identifier('file', (_value: string) => 'test')
+
+    assert.throws(
+      () => EnvParser.identifier('file', (_value: string) => 'test'),
+      'The identifier "file" is already defined'
+    )
+  })
+
   test('give preference to the parsed values when interpolating values', async ({
     assert,
     expectTypeOf,
@@ -66,7 +140,7 @@ test.group('Env Parser', () => {
     const envString = ['ENV_USER=romain', 'REDIS-USER=$ENV_USER'].join('\n')
     const parser = new EnvParser(envString, { ignoreProcessEnv: true })
 
-    const parsed = parser.parse()
+    const parsed = await parser.parse()
     expectTypeOf(parsed).toEqualTypeOf<DotenvParseOutput>()
     assert.deepEqual(parsed, {
       'ENV_USER': 'romain',
@@ -87,7 +161,7 @@ test.group('Env Parser', () => {
     const envString = ['ENV_USER=romain', 'REDIS-USER=$ENV_USER'].join('\n')
     const parser = new EnvParser(envString)
 
-    const parsed = parser.parse()
+    const parsed = await parser.parse()
     expectTypeOf(parsed).toEqualTypeOf<DotenvParseOutput>()
     assert.deepEqual(parsed, {
       'ENV_USER': 'virk',
@@ -108,7 +182,7 @@ test.group('Env Parser', () => {
     const envString = ['REDIS-USER=$ENV_USER'].join('\n')
     const parser = new EnvParser(envString)
 
-    const parsed = parser.parse()
+    const parsed = await parser.parse()
     expectTypeOf(parsed).toEqualTypeOf<DotenvParseOutput>()
     assert.deepEqual(parsed, {
       'REDIS-USER': 'virk',

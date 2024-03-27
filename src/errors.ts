@@ -7,7 +7,7 @@
  * file that was distributed with this source code.
  */
 
-import { Exception } from '@poppinss/utils'
+import { createError, Exception } from '@poppinss/utils'
 
 /**
  * Exception raised when one or more env variables
@@ -18,3 +18,9 @@ export const E_INVALID_ENV_VARIABLES = class EnvValidationException extends Exce
   static code = 'E_INVALID_ENV_VARIABLES'
   help: string = ''
 }
+
+export const E_IDENTIFIER_ALREADY_DEFINED = createError<[string]>(
+  'The identifier "%s" is already defined',
+  'E_IDENTIFIER_ALREADY_DEFINED',
+  500
+)
