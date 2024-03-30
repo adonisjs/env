@@ -12,8 +12,6 @@ Install the package from the npm packages registry as follows.
 
 ```sh
 npm i @adonisjs/env
-
-yarn add @adonisjs/env
 ```
 
 ## EnvLoader
@@ -52,7 +50,7 @@ const envParser = new EnvParser(`
   HOST=localhost
 `)
 
-console.log(envParser.parse()) // { PORT: '3000', HOST: 'localhost' }
+console.log(await envParser.parse()) // { PORT: '3000', HOST: 'localhost' }
 ```
 
 The return value of `parser.parse` is an object with key-value pair. The parser also has support for interpolation.
@@ -62,6 +60,27 @@ By default, the parser prefers existing `process.env` values when they exist. Ho
 ```ts
 new EnvParser(envContents, { ignoreProcessEnv: true })
 ```
+
+### Identifier
+
+You can define an "identifier" to be used for interpolation. The identifier is a string that prefix the environment variable value and let you customize the value resolution.
+
+```ts
+import { readFile } from 'node:fs/promises'
+import { EnvParser } from '@adonisjs/env'
+
+EnvParser.identifier('file', (value) => {
+  return readFile(value, 'utf-8')
+})
+
+const envParser = new EnvParser(`
+  DB_PASSWORD=file:/run/secret/db_password
+`)
+
+console.log(await envParser.parse()) // { DB_PASSWORD: 'Value from file /run/secret/db_password' }
+```
+
+This can be useful when you are using secrets manager like `Docker Secret`, `HashiCorp Vault`, `Google Secrets Manager` and others to manage your secrets.
 
 ## Validating environment variables
 Once you have the parsed objects, you can optionally validate them against a pre-defined schema. We recommend validation for the following reasons.
