@@ -1,6 +1,6 @@
 {
   "name": "@adonisjs/env",
-  "version": "6.0.0",
+  "version": "6.0.1",
   "description": "Environment variable manager for Node.js",
   "main": "build/index.js",
   "type": "module",
@@ -93,7 +93,9 @@
       "tagName": "v${version}"
     },
     "hooks": {
-      "before:init": ["npm test"]
+      "before:init": [
+        "npm test"
+      ]
     },
     "github": {
       "release": true,
