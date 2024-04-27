@@ -57,8 +57,8 @@ export class EnvEditor {
 
   /**
    * Add key-value pair to the dot-env files.
-   * If `withEmptyExampleValue` is true, then only the key is added to the
-   * `.env.example` file.
+   * If `withEmptyExampleValue` is true then the key will be added with an empty value
+   * to the `.env.example` file.
    */
   add(key: string, value: string | number | boolean, withEmptyExampleValue = false) {
     this.#files.forEach((file) => {
