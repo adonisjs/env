@@ -129,4 +129,23 @@ test.group('Env editor | modify', () => {
     await assert.fileEquals('.env', ['PORT=3000', '', 'HOST=127.0.0.1'].join('\n'))
     await assert.fileEquals('.env.example', ['', 'PORT=3000', 'HOST=127.0.0.1'].join('\n'))
   })
+
+  test('add key with empty example value', async ({ assert, fs }) => {
+    await fs.create('.env', '')
+    await fs.create('.env.example', '')
+
+    const editor = await EnvEditor.create(fs.baseUrl)
+    editor.add('PORT', 3000, true)
+
+    assert.deepEqual(editor.toJSON(), [
+      {
+        path: join(fs.basePath, '.env'),
+        contents: ['', 'PORT=3000'],
+      },
+      {
+        path: join(fs.basePath, '.env.example'),
+        contents: ['', 'PORT='],
+      },
+    ])
+  })
 })
