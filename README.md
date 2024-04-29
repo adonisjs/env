@@ -139,6 +139,18 @@ editor.add('HOST', 'localhost')
 await editor.save()
 ```
 
+You can also insert an empty value for the `.env.example` file by setting the last argument to `true`.
+
+```ts
+editor.add('SECRET_VARIABLE', 'secret-value', true)
+```
+
+This will add the following line to the `.env.example` file.
+
+```env
+SECRET_VARIABLE=
+```
+
 ## Known Exceptions
 
 ### E_INVALID_ENV_VARIABLES

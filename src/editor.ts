@@ -57,13 +57,20 @@ export class EnvEditor {
 
   /**
    * Add key-value pair to the dot-env files.
+   * If `withEmptyExampleValue` is true then the key will be added with an empty value
+   * to the `.env.example` file.
    */
-  add(key: string, value: string | number | boolean) {
+  add(key: string, value: string | number | boolean, withEmptyExampleValue = false) {
     this.#files.forEach((file) => {
       let entryIndex = file.contents.findIndex((line) => line.startsWith(`${key}=`))
 
       entryIndex = entryIndex === -1 ? file.contents.length : entryIndex
-      lodash.set(file.contents, entryIndex, `${key}=${String(value)}`)
+
+      if (withEmptyExampleValue && file.path.endsWith('.env.example')) {
+        lodash.set(file.contents, entryIndex, `${key}=`)
+      } else {
+        lodash.set(file.contents, entryIndex, `${key}=${value}`)
+      }
     })
   }
 
