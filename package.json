@@ -31,7 +31,7 @@
     "lint": "eslint . --ext=.ts",
     "format": "prettier --write .",
     "sync-labels": "github-label-sync --labels .github/labels.json adonisjs/env",
-    "quick:test": "node --loader=ts-node/esm bin/test.ts"
+    "quick:test": "node --import=ts-node-maintained/register/esm bin/test.ts"
   },
   "keywords": [
     "env",
@@ -63,7 +63,7 @@
     "husky": "^9.0.11",
     "prettier": "^3.2.5",
     "release-it": "^17.2.0",
-    "ts-node": "^10.9.2",
+    "ts-node-maintained": "^10.9.4",
     "tsup": "^8.0.2",
     "typescript": "^5.4.5"
   },
@@ -131,5 +131,6 @@
     "dts": false,
     "sourcemap": true,
     "target": "esnext"
-  }
+  },
+  "packageManager": "pnpm@9.15.0+sha512.76e2379760a4328ec4415815bcd6628dee727af3779aaa4c914e3944156c4299921a89f976381ee107d41f12cfa4b66681ca9c718f0668fa0831ed4c6d8ba56c"
 }
