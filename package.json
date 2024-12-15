@@ -53,6 +53,7 @@
     "@japa/expect-type": "^2.0.2",
     "@japa/file-system": "^2.3.0",
     "@japa/runner": "^3.1.4",
+    "@release-it/conventional-changelog": "^9.0.3",
     "@swc/core": "^1.4.16",
     "@types/node": "^20.12.7",
     "c8": "^9.1.0",
@@ -92,19 +93,26 @@
   },
   "release-it": {
     "git": {
+      "requireCleanWorkingDir": true,
+      "requireUpstream": true,
       "commitMessage": "chore(release): ${version}",
       "tagAnnotation": "v${version}",
+      "push": true,
       "tagName": "v${version}"
     },
-    "hooks": {
-      "before:init": [
-        "npm test"
-      ]
-    },
     "github": {
-      "release": true,
-      "releaseName": "v${version}",
-      "web": true
+      "release": true
+    },
+    "npm": {
+      "publish": true,
+      "skipChecks": true
+    },
+    "plugins": {
+      "@release-it/conventional-changelog": {
+        "preset": {
+          "name": "angular"
+        }
+      }
     }
   },
   "c8": {
