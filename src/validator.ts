@@ -8,7 +8,7 @@
  */
 
 import type { Exception } from '@poppinss/utils'
-import { ValidateFn } from '@poppinss/validator-lite'
+import type { ValidateFn } from '@poppinss/validator-lite/types'
 
 import { E_INVALID_ENV_VARIABLES } from './errors.js'
 

@@ -7,10 +7,11 @@
  * file that was distributed with this source code.
  */
 
-import { schema as envSchema, type ValidateFn } from '@poppinss/validator-lite'
+import { schema as envSchema } from '@poppinss/validator-lite'
 import { EnvValidator } from './validator.js'
 import { EnvProcessor } from './processor.js'
 import { EnvParser } from './parser.js'
+import type { ValidateFn } from '@poppinss/validator-lite/types'
 
 /**
  * A wrapper over "process.env" with types information.
@@ -72,7 +73,7 @@ export class Env<EnvValues extends Record<string, any>> {
   /**
    * The schema builder for defining validation rules
    */
-  static schema = envSchema
+  static schema: typeof envSchema = envSchema
 
   /**
    * Define the validation rules for validating environment
@@ -86,7 +87,7 @@ export class Env<EnvValues extends Record<string, any>> {
 
   /**
    * Get the value of an environment variable by key. The values are
-   * lookedup inside the validated environment and "process.env"
+   * looked up inside the validated environment and "process.env"
    * is used as a fallback.
    *
    * The second param is the default value, which is returned when
