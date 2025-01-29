@@ -145,6 +145,11 @@ export class Env<EnvValues extends Record<string, any>> {
   set<K extends keyof EnvValues>(key: K, value: EnvValues[K]): void
   set(key: string, value: string): void
   set(key: string | keyof EnvValues, value: any): void {
+    if (value === undefined) {
+      delete this.#values[key]
+      delete process.env[key as string]
+      return
+    }
     this.#values[key] = value
     process.env[key as string] = value
   }
