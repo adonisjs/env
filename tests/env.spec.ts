@@ -74,6 +74,18 @@ test.group('Env', (group) => {
     assert.equal(port, 3000)
   })
 
+  test('return default value when env is re-set to undefined', ({ assert, cleanup }) => {
+    const env = new Env<{ VALUE?: string }>({ VALUE: undefined })
+    env.set('VALUE', 'new value')
+
+    cleanup(() => {
+      delete process.env.VALUE
+    })
+    assert.equal(env.get('VALUE', 'DEFAULT'), 'new value')
+    env.set('VALUE', undefined)
+    assert.equal(env.get('VALUE', 'DEFAULT'), 'DEFAULT')
+  })
+
   test('update env value', ({ assert, cleanup }) => {
     cleanup(() => {
       delete process.env.PORT
