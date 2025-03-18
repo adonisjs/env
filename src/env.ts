@@ -58,9 +58,34 @@ export class Env<EnvValues extends Record<string, any>> {
   /**
    * Define an identifier for any environment value. The callback is invoked
    * when the value match the identifier to modify its interpolation.
+   *
+   * @deprecated use `Env.defineIdentifier` instead
    */
   static identifier(name: string, callback: (value: string) => Promise<string> | string): void {
-    EnvParser.identifier(name, callback)
+    return EnvParser.defineIdentifier(name, callback)
+  }
+
+  /**
+   * Define an identifier for any environment value. The callback is invoked
+   * when the value match the identifier to modify its interpolation.
+   */
+  static defineIdentifier(
+    name: string,
+    callback: (value: string) => Promise<string> | string
+  ): void {
+    EnvParser.defineIdentifier(name, callback)
+  }
+
+  /**
+   * Define an identifier for any environment value, if it's not already defined.
+   * The callback is invoked when the value match the identifier to modify its
+   * interpolation.
+   */
+  static defineIdentifierIfMissing(
+    name: string,
+    callback: (value: string) => Promise<string> | string
+  ): void {
+    EnvParser.defineIdentifierIfMissing(name, callback)
   }
 
   /**
