@@ -76,9 +76,12 @@ test.group('Env', (group) => {
     })
 
     await fs.create('.env', 'PORT=file:romain')
-    await Env.create(fs.baseUrl, {
+    const env = await Env.create(fs.baseUrl, {
       PORT: Env.schema.number(),
     })
+
+    assert.strictEqual(process.env.PORT, '3000')
+    assert.equal(env.get('PORT'), 3000)
   })
 
   test('read values from process.env', ({ assert, expectTypeOf, cleanup }) => {
