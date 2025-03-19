@@ -21,11 +21,61 @@ test.group('Env', (group) => {
 
     cleanup(() => {
       Env.removeIdentifier('file')
+      delete process.env.PORT
     })
 
-    Env.identifier('file', (_value: string) => {
+    Env.defineIdentifier('file', (_value: string) => {
       assert.isTrue(true)
 
+      return '3000'
+    })
+
+    await fs.create('.env', 'PORT=file:romain')
+    await Env.create(fs.baseUrl, {
+      PORT: Env.schema.number(),
+    })
+  })
+
+  test('throw exception when identifier is already defined', async ({ assert, cleanup }) => {
+    assert.plan(1)
+
+    cleanup(() => {
+      Env.removeIdentifier('file')
+      delete process.env.PORT
+    })
+
+    Env.defineIdentifier('file', (_value: string) => {
+      return '3000'
+    })
+
+    assert.throws(
+      () =>
+        Env.defineIdentifier('file', (_value: string) => {
+          return '3000'
+        }),
+      'The identifier "file" is already defined'
+    )
+  })
+
+  test('silently ignore when adding the same identifier with IfMissing variant', async ({
+    assert,
+    cleanup,
+    fs,
+  }) => {
+    assert.plan(1)
+
+    cleanup(() => {
+      Env.removeIdentifier('file')
+      delete process.env.PORT
+    })
+
+    Env.defineIdentifier('file', (_value: string) => {
+      assert.isTrue(true)
+
+      return '3000'
+    })
+
+    Env.defineIdentifierIfMissing('file', (_value: string) => {
       return '3000'
     })
 

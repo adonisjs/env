@@ -66,13 +66,40 @@ export class EnvParser {
   /**
    * Define an identifier for any environment value. The callback is invoked
    * when the value match the identifier to modify its interpolation.
+   *
+   * @deprecated use `EnvParser.defineIdentifier` instead
    */
   static identifier(name: string, callback: (value: string) => Promise<string> | string): void {
+    EnvParser.defineIdentifier(name, callback)
+  }
+
+  /**
+   * Define an identifier for any environment value. The callback is invoked
+   * when the value match the identifier to modify its interpolation.
+   */
+  static defineIdentifier(
+    name: string,
+    callback: (value: string) => Promise<string> | string
+  ): void {
     if (this.#identifiers[name]) {
       throw new E_IDENTIFIER_ALREADY_DEFINED([name])
     }
 
     this.#identifiers[name] = callback
+  }
+
+  /**
+   * Define an identifier for any environment value, if it's not already defined.
+   * The callback is invoked when the value match the identifier to modify its
+   * interpolation.
+   */
+  static defineIdentifierIfMissing(
+    name: string,
+    callback: (value: string) => Promise<string> | string
+  ): void {
+    if (typeof this.#identifiers[name] === 'undefined') {
+      this.#identifiers[name] = callback
+    }
   }
 
   /**

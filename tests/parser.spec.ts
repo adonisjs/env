@@ -58,7 +58,57 @@ test.group('Env Parser', () => {
       EnvParser.removeIdentifier('file')
     })
 
-    EnvParser.identifier('file', (_value: string) => {
+    EnvParser.defineIdentifier('file', (_value: string) => {
+      return '3000'
+    })
+
+    const envString = ['ENV_USER=file:romain'].join('\n')
+    const parser = new EnvParser(envString)
+    const parsed = await parser.parse()
+
+    expectTypeOf(parsed).toEqualTypeOf<DotenvParseOutput>()
+    assert.deepEqual(parsed, {
+      ENV_USER: '3000',
+    })
+  })
+
+  test('throw exception when identifier is already defined', async ({ assert, cleanup }) => {
+    cleanup(() => {
+      EnvParser.removeIdentifier('file')
+    })
+
+    EnvParser.defineIdentifier('file', (_value: string) => {
+      return '3000'
+    })
+
+    assert.throws(
+      () =>
+        EnvParser.defineIdentifier('file', (_value: string) => {
+          return '3000'
+        }),
+      'The identifier "file" is already defined'
+    )
+  })
+
+  test('silently ignore when adding the same identifier with IfMissing variant', async ({
+    assert,
+    cleanup,
+    expectTypeOf,
+  }) => {
+    assert.plan(2)
+
+    cleanup(() => {
+      EnvParser.removeIdentifier('file')
+    })
+
+    EnvParser.defineIdentifier('file', (_value: string) => {
+      console.log('Never called')
+      assert.isTrue(true)
+
+      return '3000'
+    })
+
+    EnvParser.defineIdentifierIfMissing('file', (_value: string) => {
       return '3000'
     })
 
