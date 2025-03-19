@@ -95,21 +95,16 @@ test.group('Env Parser', () => {
     cleanup,
     expectTypeOf,
   }) => {
-    assert.plan(2)
-
     cleanup(() => {
       EnvParser.removeIdentifier('file')
     })
 
     EnvParser.defineIdentifier('file', (_value: string) => {
-      console.log('Never called')
-      assert.isTrue(true)
-
       return '3000'
     })
 
     EnvParser.defineIdentifierIfMissing('file', (_value: string) => {
-      return '3000'
+      return '4000'
     })
 
     const envString = ['ENV_USER=file:romain'].join('\n')

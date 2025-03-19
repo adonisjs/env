@@ -62,21 +62,17 @@ test.group('Env', (group) => {
     cleanup,
     fs,
   }) => {
-    assert.plan(1)
-
     cleanup(() => {
       Env.removeIdentifier('file')
       delete process.env.PORT
     })
 
     Env.defineIdentifier('file', (_value: string) => {
-      assert.isTrue(true)
-
       return '3000'
     })
 
     Env.defineIdentifierIfMissing('file', (_value: string) => {
-      return '3000'
+      return '4000'
     })
 
     await fs.create('.env', 'PORT=file:romain')

@@ -8,10 +8,11 @@
  */
 
 import { schema as envSchema } from '@poppinss/validator-lite'
+import type { ValidateFn } from '@poppinss/validator-lite/types'
+
+import { EnvParser } from './parser.js'
 import { EnvValidator } from './validator.js'
 import { EnvProcessor } from './processor.js'
-import { EnvParser } from './parser.js'
-import type { ValidateFn } from '@poppinss/validator-lite/types'
 
 /**
  * A wrapper over "process.env" with types information.
