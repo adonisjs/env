@@ -8,6 +8,7 @@
  */
 
 import { test } from '@japa/runner'
+import string from '@poppinss/utils/string'
 import { schema } from '@poppinss/validator-lite'
 import { EnvValidator } from '../src/validator.js'
 import { E_INVALID_ENV_VARIABLES } from '../src/errors.js'
@@ -65,7 +66,7 @@ test.group('Env Validator', () => {
       validator.validate({})
     } catch (error) {
       const source = error.stack.split('\n')[2]
-      assert.match(source, new RegExp(import.meta.dirname))
+      assert.match(source, new RegExp(string.toUnixSlash(import.meta.dirname)))
     }
   })
 
