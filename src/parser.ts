@@ -7,7 +7,7 @@
  * file that was distributed with this source code.
  */
 
-import dotenv, { DotenvParseOutput } from 'dotenv'
+import dotenv, { type DotenvParseOutput } from 'dotenv'
 import { E_IDENTIFIER_ALREADY_DEFINED } from './errors.js'
 
 /**

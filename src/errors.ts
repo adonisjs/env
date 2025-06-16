@@ -7,7 +7,7 @@
  * file that was distributed with this source code.
  */
 
-import { createError, Exception } from '@poppinss/utils'
+import { createError, Exception } from '@poppinss/utils/exception'
 
 /**
  * Exception raised when one or more env variables

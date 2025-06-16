@@ -7,7 +7,7 @@
  * file that was distributed with this source code.
  */
 
-import type { Exception } from '@poppinss/utils'
+import type { Exception } from '@poppinss/utils/exception'
 import type { ValidateFn } from '@poppinss/validator-lite/types'
 
 import { E_INVALID_ENV_VARIABLES } from './errors.js'

@@ -8,7 +8,7 @@
  */
 
 import { test } from '@japa/runner'
-import { DotenvParseOutput } from 'dotenv'
+import { type DotenvParseOutput } from 'dotenv'
 import { EnvParser } from '../src/parser.js'
 
 test.group('Env Parser', () => {
