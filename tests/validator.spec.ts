@@ -65,7 +65,7 @@ test.group('Env Validator', () => {
       validator.validate({})
     } catch (error) {
       const source = error.stack.split('\n')[2]
-      assert.match(source, new RegExp(import.meta.url))
+      assert.match(source, new RegExp(import.meta.dirname))
     }
   })
 
