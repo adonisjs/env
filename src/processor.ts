@@ -7,9 +7,9 @@
  * file that was distributed with this source code.
  */
 
-import debug from './debug.js'
-import { EnvParser } from './parser.js'
-import { EnvLoader } from './loader.js'
+import debug from './debug.ts'
+import { EnvParser } from './parser.ts'
+import { EnvLoader } from './loader.ts'
 
 /**
  * Env processors loads, parses and process environment variables.

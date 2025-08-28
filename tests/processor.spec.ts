@@ -8,7 +8,7 @@
  */
 
 import { test } from '@japa/runner'
-import { EnvProcessor } from '../src/processor.js'
+import { EnvProcessor } from '../src/processor.ts'
 
 test.group('Env processor', () => {
   test('process .env file', async ({ assert, cleanup, fs }) => {

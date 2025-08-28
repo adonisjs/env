@@ -7,7 +7,7 @@
  * file that was distributed with this source code.
  */
 
-import { Env } from '../src/env.js'
+import { Env } from '../src/env.ts'
 
 const validator = Env.rules({
   PORT: Env.schema.number(),

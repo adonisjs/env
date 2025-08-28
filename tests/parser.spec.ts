@@ -9,7 +9,7 @@
 
 import { test } from '@japa/runner'
 import { type DotenvParseOutput } from 'dotenv'
-import { EnvParser } from '../src/parser.js'
+import { EnvParser } from '../src/parser.ts'
 import { readFile } from 'node:fs/promises'
 
 test.group('Env Parser', () => {

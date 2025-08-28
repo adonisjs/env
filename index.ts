@@ -7,8 +7,8 @@
  * file that was distributed with this source code.
  */
 
-export { Env } from './src/env.js'
-export { EnvParser } from './src/parser.js'
-export { EnvLoader } from './src/loader.js'
-export * as errors from './src/errors.js'
-export { EnvProcessor } from './src/processor.js'
+export { Env } from './src/env.ts'
+export { EnvParser } from './src/parser.ts'
+export { EnvLoader } from './src/loader.ts'
+export * as errors from './src/errors.ts'
+export { EnvProcessor } from './src/processor.ts'

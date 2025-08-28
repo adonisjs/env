@@ -9,7 +9,7 @@
 
 import { join } from 'node:path'
 import { test } from '@japa/runner'
-import { EnvLoader } from '../src/loader.js'
+import { EnvLoader } from '../src/loader.ts'
 
 test.group('Env loader', () => {
   test('return empty string when .env files are missing', async ({ assert, expectTypeOf, fs }) => {

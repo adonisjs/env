@@ -8,7 +8,7 @@
  */
 
 import { test } from '@japa/runner'
-import { Env } from '../src/env.js'
+import { Env } from '../src/env.ts'
 
 test.group('Env', (group) => {
   group.each.teardown(() => {

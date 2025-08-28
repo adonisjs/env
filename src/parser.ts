@@ -9,7 +9,7 @@
 
 import dotenv, { type DotenvParseOutput } from 'dotenv'
 import { type EnvIdentifierCallback } from './types.ts'
-import { E_IDENTIFIER_ALREADY_DEFINED } from './errors.js'
+import { E_IDENTIFIER_ALREADY_DEFINED } from './errors.ts'
 import { readFile } from 'node:fs/promises'
 import { RuntimeException } from '@poppinss/utils/exception'
 

@@ -11,7 +11,7 @@ import splitLines from 'split-lines'
 import lodash from '@poppinss/utils/lodash'
 import { writeFile } from 'node:fs/promises'
 
-import { EnvLoader } from './loader.js'
+import { EnvLoader } from './loader.ts'
 
 /**
  * Environment editor for managing and modifying .env files.

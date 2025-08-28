@@ -10,7 +10,7 @@
 import { join } from 'node:path'
 import { test } from '@japa/runner'
 
-import { EnvEditor } from '../src/editor.js'
+import { EnvEditor } from '../src/editor.ts'
 
 test.group('Env editor | files to modify', () => {
   test('add key-value pair to dot-env files', async ({ assert, fs }) => {

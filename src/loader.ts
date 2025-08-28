@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url'
 import { readFile } from 'node:fs/promises'
 import { isAbsolute, join } from 'node:path'
 
-import debug from './debug.js'
+import debug from './debug.ts'
 
 /**
  * Read the contents of one or more dot-env files. Following is how the files
