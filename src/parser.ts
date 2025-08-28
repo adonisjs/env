@@ -8,6 +8,7 @@
  */
 
 import dotenv, { type DotenvParseOutput } from 'dotenv'
+import { type EnvIdentifierCallback } from './types.ts'
 import { E_IDENTIFIER_ALREADY_DEFINED } from './errors.js'
 
 /**
@@ -52,15 +53,17 @@ import { E_IDENTIFIER_ALREADY_DEFINED } from './errors.js'
  */
 export class EnvParser {
   #envContents: string
+  #appRoot: URL
   #preferProcessEnv: boolean = true
-  static #identifiers: Record<string, (value: string) => Promise<string> | string> = {}
+  static #identifiers: Record<string, EnvIdentifierCallback> = {}
 
-  constructor(envContents: string, options?: { ignoreProcessEnv: boolean }) {
+  constructor(envContents: string, appRoot: URL, options?: { ignoreProcessEnv: boolean }) {
     if (options?.ignoreProcessEnv) {
       this.#preferProcessEnv = false
     }
 
     this.#envContents = envContents
+    this.#appRoot = appRoot
   }
 
   /**
@@ -234,7 +237,8 @@ export class EnvParser {
         for (const identifier of identifiers) {
           if (value.startsWith(`${identifier}:`)) {
             result[key] = await EnvParser.#identifiers[identifier](
-              value.substring(identifier.length + 1)
+              value.substring(identifier.length + 1),
+              this.#appRoot
             )
 
             continue $keyLoop

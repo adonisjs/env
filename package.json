@@ -12,6 +12,7 @@
   ],
   "exports": {
     ".": "./build/index.js",
+    "./types": "./build/src/types.js",
     "./editor": "./build/src/editor.js"
   },
   "engines": {
@@ -83,6 +84,7 @@
   "tsup": {
     "entry": [
       "./index.ts",
+      "./src/types.ts",
       "./src/editor.ts"
     ],
     "outDir": "./build",

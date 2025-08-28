@@ -12,7 +12,7 @@ import { type DotenvParseOutput } from 'dotenv'
 import { EnvParser } from '../src/parser.js'
 
 test.group('Env Parser', () => {
-  test('parse env string and interpolate values', async ({ assert, expectTypeOf }) => {
+  test('parse env string and interpolate values', async ({ assert, fs, expectTypeOf }) => {
     const envString = [
       'PORT=3333',
       'HOST=127.0.0.1',
@@ -31,7 +31,7 @@ test.group('Env Parser', () => {
       'REDIS_URL=$REDIS_HOST://${REDIS-USER}@$REDIS_PASSWORD',
     ].join('\n')
 
-    const parser = new EnvParser(envString)
+    const parser = new EnvParser(envString, fs.baseUrl)
     const parsed = await parser.parse()
     expectTypeOf(parsed).toEqualTypeOf<DotenvParseOutput>()
     assert.deepEqual(parsed, {
@@ -53,7 +53,7 @@ test.group('Env Parser', () => {
     })
   })
 
-  test('define identifier', async ({ assert, cleanup, expectTypeOf }) => {
+  test('define identifier', async ({ assert, fs, cleanup, expectTypeOf }) => {
     cleanup(() => {
       EnvParser.removeIdentifier('file')
     })
@@ -63,7 +63,7 @@ test.group('Env Parser', () => {
     })
 
     const envString = ['ENV_USER=file:romain'].join('\n')
-    const parser = new EnvParser(envString)
+    const parser = new EnvParser(envString, fs.baseUrl)
     const parsed = await parser.parse()
 
     expectTypeOf(parsed).toEqualTypeOf<DotenvParseOutput>()
@@ -91,6 +91,7 @@ test.group('Env Parser', () => {
   })
 
   test('silently ignore when adding the same identifier with IfMissing variant', async ({
+    fs,
     assert,
     cleanup,
     expectTypeOf,
@@ -108,7 +109,7 @@ test.group('Env Parser', () => {
     })
 
     const envString = ['ENV_USER=file:romain'].join('\n')
-    const parser = new EnvParser(envString)
+    const parser = new EnvParser(envString, fs.baseUrl)
     const parsed = await parser.parse()
 
     expectTypeOf(parsed).toEqualTypeOf<DotenvParseOutput>()
@@ -118,6 +119,7 @@ test.group('Env Parser', () => {
   })
 
   test('identifier is used only when complete value is matched', async ({
+    fs,
     assert,
     cleanup,
     expectTypeOf,
@@ -126,12 +128,12 @@ test.group('Env Parser', () => {
       EnvParser.removeIdentifier('file')
     })
 
-    EnvParser.identifier('file', (_value: string) => {
+    EnvParser.defineIdentifier('file', (_value: string) => {
       return '3000'
     })
 
     const envString = ['ENV_USER=file_romain:romain'].join('\n')
-    const parser = new EnvParser(envString)
+    const parser = new EnvParser(envString, fs.baseUrl)
     const parsed = await parser.parse()
 
     expectTypeOf(parsed).toEqualTypeOf<DotenvParseOutput>()
@@ -140,17 +142,17 @@ test.group('Env Parser', () => {
     })
   })
 
-  test('allows to escape the identifier', async ({ assert, cleanup, expectTypeOf }) => {
+  test('allows to escape the identifier', async ({ assert, fs, cleanup, expectTypeOf }) => {
     cleanup(() => {
       EnvParser.removeIdentifier('file')
     })
 
-    EnvParser.identifier('file', (_value: string) => {
+    EnvParser.defineIdentifier('file', (_value: string) => {
       return '3000'
     })
 
     const envString = ['ENV_USER=file\\:///root/app/user.js'].join('\n')
-    const parser = new EnvParser(envString)
+    const parser = new EnvParser(envString, fs.baseUrl)
     const parsed = await parser.parse()
 
     expectTypeOf(parsed).toEqualTypeOf<DotenvParseOutput>()
@@ -159,20 +161,17 @@ test.group('Env Parser', () => {
     })
   })
 
-  test('throw when identifier is already defined', async ({ assert, cleanup }) => {
+  test('throw when identifier is already defined', async ({ cleanup }) => {
     cleanup(() => {
       EnvParser.removeIdentifier('file')
     })
 
-    EnvParser.identifier('file', (_value: string) => 'test')
-
-    assert.throws(
-      () => EnvParser.identifier('file', (_value: string) => 'test'),
-      'The identifier "file" is already defined'
-    )
-  })
+    EnvParser.defineIdentifier('file', (_value: string) => 'test')
+    EnvParser.defineIdentifier('file', (_value: string) => 'test')
+  }).throws('The identifier "file" is already defined')
 
   test('give preference to the parsed values when interpolating values', async ({
+    fs,
     assert,
     expectTypeOf,
     cleanup,
@@ -183,7 +182,7 @@ test.group('Env Parser', () => {
     })
 
     const envString = ['ENV_USER=romain', 'REDIS-USER=$ENV_USER'].join('\n')
-    const parser = new EnvParser(envString, { ignoreProcessEnv: true })
+    const parser = new EnvParser(envString, fs.baseUrl, { ignoreProcessEnv: true })
 
     const parsed = await parser.parse()
     expectTypeOf(parsed).toEqualTypeOf<DotenvParseOutput>()
@@ -194,6 +193,7 @@ test.group('Env Parser', () => {
   })
 
   test('give preference to the existing process.env values when interpolating values', async ({
+    fs,
     assert,
     expectTypeOf,
     cleanup,
@@ -204,7 +204,7 @@ test.group('Env Parser', () => {
     })
 
     const envString = ['ENV_USER=romain', 'REDIS-USER=$ENV_USER'].join('\n')
-    const parser = new EnvParser(envString)
+    const parser = new EnvParser(envString, fs.baseUrl)
 
     const parsed = await parser.parse()
     expectTypeOf(parsed).toEqualTypeOf<DotenvParseOutput>()
@@ -215,6 +215,7 @@ test.group('Env Parser', () => {
   })
 
   test('use process.env values during interpolation even when process.env is not preferred', async ({
+    fs,
     assert,
     expectTypeOf,
     cleanup,
@@ -225,7 +226,7 @@ test.group('Env Parser', () => {
     })
 
     const envString = ['REDIS-USER=$ENV_USER'].join('\n')
-    const parser = new EnvParser(envString)
+    const parser = new EnvParser(envString, fs.baseUrl)
 
     const parsed = await parser.parse()
     expectTypeOf(parsed).toEqualTypeOf<DotenvParseOutput>()

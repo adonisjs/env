@@ -35,7 +35,7 @@ export class EnvProcessor {
       return store
     }
 
-    const parser = new EnvParser(envContents)
+    const parser = new EnvParser(envContents, this.#appRoot)
     const values = await parser.parse()
 
     Object.keys(values).forEach((key) => {
