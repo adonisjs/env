@@ -20,14 +20,26 @@ export class EnvProcessor {
    */
   #appRoot: URL
 
+  /**
+   * Creates a new EnvProcessor instance
+   *
+   * @param appRoot - The application root directory URL
+   */
   constructor(appRoot: URL) {
     this.#appRoot = appRoot
   }
 
   /**
    * Parse env variables from raw contents
+   *
+   * @param envContents - Raw environment file contents
+   * @param store - Store object to collect parsed variables
+   * @returns Updated store with parsed variables
    */
-  async #processContents(envContents: string, store: Record<string, any>) {
+  async #processContents(
+    envContents: string,
+    store: Record<string, any>
+  ): Promise<Record<string, any>> {
     /**
      * Collected env variables
      */
@@ -56,8 +68,10 @@ export class EnvProcessor {
 
   /**
    * Parse env variables by loading dot files.
+   *
+   * @returns Promise resolving to collected environment variables
    */
-  async #loadAndProcessDotFiles() {
+  async #loadAndProcessDotFiles(): Promise<Record<string, any>> {
     const loader = new EnvLoader(this.#appRoot)
     const envFiles = await loader.load()
 
@@ -78,8 +92,10 @@ export class EnvProcessor {
 
   /**
    * Process env variables
+   *
+   * @returns Promise resolving to processed environment variables
    */
-  async process() {
+  async process(): Promise<Record<string, any>> {
     return this.#loadAndProcessDotFiles()
   }
 }

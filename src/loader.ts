@@ -36,9 +36,22 @@ import debug from './debug.js'
  * ```
  */
 export class EnvLoader {
+  /**
+   * The application root directory path
+   */
   #appRoot: string
+
+  /**
+   * Whether to load the .env.example file
+   */
   #loadExampleFile: boolean
 
+  /**
+   * Creates a new EnvLoader instance
+   *
+   * @param appRoot - The application root directory as string or URL
+   * @param loadExampleFile - Whether to load .env.example file
+   */
   constructor(appRoot: string | URL, loadExampleFile: boolean = false) {
     this.#appRoot = typeof appRoot === 'string' ? appRoot : fileURLToPath(appRoot)
     this.#loadExampleFile = loadExampleFile
@@ -46,6 +59,9 @@ export class EnvLoader {
 
   /**
    * Optionally read a file from the disk
+   *
+   * @param filePath - Path to the file to read
+   * @returns Promise resolving to file existence status and contents
    */
   async #loadFile(filePath: string | URL): Promise<{ fileExists: boolean; contents: string }> {
     try {
@@ -64,6 +80,8 @@ export class EnvLoader {
   /**
    * Load contents of the main dot-env file and the current
    * environment dot-env file
+   *
+   * @returns Promise resolving to array of loaded environment files
    */
   async load(): Promise<{ contents: string; path: string; fileExists: boolean }[]> {
     const ENV_PATH = process.env.ENV_PATH

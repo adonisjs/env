@@ -54,9 +54,24 @@ import { RuntimeException } from '@poppinss/utils/exception'
  * ```
  */
 export class EnvParser {
+  /**
+   * Raw environment file contents
+   */
   #envContents: string
+
+  /**
+   * Application root directory URL
+   */
   #appRoot: URL
+
+  /**
+   * Whether to prefer process.env values over parsed values
+   */
   #preferProcessEnv: boolean = true
+
+  /**
+   * Static collection of registered identifiers with their callbacks
+   */
   static #identifiers: Record<string, EnvIdentifierCallback> = {
     async file(value, key, appRoot) {
       const filePath = new URL(value, appRoot)
@@ -77,6 +92,13 @@ export class EnvParser {
     },
   }
 
+  /**
+   * Creates a new EnvParser instance
+   *
+   * @param envContents - Raw environment file contents
+   * @param appRoot - Application root directory URL
+   * @param options - Parser options
+   */
   constructor(envContents: string, appRoot: URL, options?: { ignoreProcessEnv: boolean }) {
     if (options?.ignoreProcessEnv) {
       this.#preferProcessEnv = false
@@ -92,6 +114,14 @@ export class EnvParser {
    *
    * @deprecated use `EnvParser.defineIdentifier` instead
    */
+  /**
+   * Define an identifier for any environment value. The callback is invoked
+   * when the value match the identifier to modify its interpolation.
+   *
+   * @deprecated use `EnvParser.defineIdentifier` instead
+   * @param name - The identifier name
+   * @param callback - Callback function to process the identifier value
+   */
   static identifier(name: string, callback: (value: string) => Promise<string> | string): void {
     EnvParser.defineIdentifier(name, callback)
   }
@@ -99,6 +129,9 @@ export class EnvParser {
   /**
    * Define an identifier for any environment value. The callback is invoked
    * when the value match the identifier to modify its interpolation.
+   *
+   * @param name - The identifier name
+   * @param callback - Callback function to process the identifier value
    */
   static defineIdentifier(
     name: string,
@@ -115,6 +148,9 @@ export class EnvParser {
    * Define an identifier for any environment value, if it's not already defined.
    * The callback is invoked when the value match the identifier to modify its
    * interpolation.
+   *
+   * @param name - The identifier name
+   * @param callback - Callback function to process the identifier value
    */
   static defineIdentifierIfMissing(
     name: string,
@@ -127,6 +163,8 @@ export class EnvParser {
 
   /**
    * Remove an identifier
+   *
+   * @param name - The identifier name to remove
    */
   static removeIdentifier(name: string): void {
     delete this.#identifiers[name]
@@ -134,6 +172,10 @@ export class EnvParser {
 
   /**
    * Returns the value from the parsed object
+   *
+   * @param key - The environment variable key
+   * @param parsed - Parsed environment variables object
+   * @returns The resolved environment variable value
    */
   #getValue(key: string, parsed: DotenvParseOutput): string {
     if (this.#preferProcessEnv && process.env[key]) {
@@ -149,8 +191,12 @@ export class EnvParser {
 
   /**
    * Interpolating the token wrapped inside the mustache braces.
+   *
+   * @param token - The token to interpolate
+   * @param parsed - Parsed environment variables object
+   * @returns Interpolated value
    */
-  #interpolateMustache(token: string, parsed: DotenvParseOutput) {
+  #interpolateMustache(token: string, parsed: DotenvParseOutput): string {
     /**
      * Finding the closing brace. If closing brace is missing, we
      * consider the block as a normal string
@@ -177,8 +223,12 @@ export class EnvParser {
    * `$`. We only capture numbers,letter and underscore.
    * For other characters, one can use the mustache
    * braces.
+   *
+   * @param token - The token to interpolate
+   * @param parsed - Parsed environment variables object
+   * @returns Interpolated value
    */
-  #interpolateVariable(token: string, parsed: any) {
+  #interpolateVariable(token: string, parsed: any): string {
     return token.replace(/[a-zA-Z0-9_]+/, (key) => {
       return this.#getValue(key, parsed)
     })
@@ -186,6 +236,10 @@ export class EnvParser {
 
   /**
    * Interpolates the referenced values
+   *
+   * @param value - The value to interpolate
+   * @param parsed - Parsed environment variables object
+   * @returns Interpolated value
    */
   #interpolate(value: string, parsed: DotenvParseOutput): string {
     const tokens = value.split('$')
@@ -244,6 +298,8 @@ export class EnvParser {
 
   /**
    * Parse the env string to an object of environment variables.
+   *
+   * @returns Promise resolving to parsed environment variables
    */
   async parse(): Promise<DotenvParseOutput> {
     const envCollection = dotenv.parse(this.#envContents.trim())

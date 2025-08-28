@@ -19,9 +19,21 @@ import { E_INVALID_ENV_VARIABLES } from './errors.js'
  * The class is not exported in the main API and used internally.
  */
 export class EnvValidator<Schema extends { [key: string]: ValidateFn<unknown> }> {
+  /**
+   * The validation schema for environment variables
+   */
   #schema: Schema
+
+  /**
+   * The error instance for validation failures
+   */
   #error: Exception
 
+  /**
+   * Creates a new EnvValidator instance
+   *
+   * @param schema - The validation schema object
+   */
   constructor(schema: Schema) {
     this.#schema = schema
     this.#error = new E_INVALID_ENV_VARIABLES()
@@ -33,6 +45,9 @@ export class EnvValidator<Schema extends { [key: string]: ValidateFn<unknown> }>
    *
    * The return value is a merged copy of the original object and the
    * values mutated by the schema validator.
+   *
+   * @param values - Object of environment variable values to validate
+   * @returns Validated and transformed environment variables
    */
   validate(values: { [K: string]: string | undefined }): {
     [K in keyof Schema]: ReturnType<Schema[K]>

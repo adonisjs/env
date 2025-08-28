@@ -34,6 +34,11 @@ export class Env<EnvValues extends Record<string, any>> {
    */
   #values: EnvValues
 
+  /**
+   * Creates a new Env instance
+   *
+   * @param values - Validated environment values
+   */
   constructor(values: EnvValues) {
     this.#values = values
   }
@@ -42,6 +47,10 @@ export class Env<EnvValues extends Record<string, any>> {
    * Create an instance of the env class by validating the
    * environment variables. Also, the `.env` files are
    * loaded from the appRoot
+   *
+   * @param appRoot - The application root directory URL
+   * @param schema - Validation schema for environment variables
+   * @returns Promise resolving to an Env instance with validated values
    */
   static async create<Schema extends { [key: string]: ValidateFn<unknown> }>(
     appRoot: URL,
@@ -61,6 +70,8 @@ export class Env<EnvValues extends Record<string, any>> {
    * when the value match the identifier to modify its interpolation.
    *
    * @deprecated use `Env.defineIdentifier` instead
+   * @param name - The identifier name
+   * @param callback - Callback function to process the identifier value
    */
   static identifier(name: string, callback: (value: string) => Promise<string> | string): void {
     return EnvParser.defineIdentifier(name, callback)
@@ -69,6 +80,9 @@ export class Env<EnvValues extends Record<string, any>> {
   /**
    * Define an identifier for any environment value. The callback is invoked
    * when the value match the identifier to modify its interpolation.
+   *
+   * @param name - The identifier name
+   * @param callback - Callback function to process the identifier value
    */
   static defineIdentifier(
     name: string,
@@ -81,6 +95,9 @@ export class Env<EnvValues extends Record<string, any>> {
    * Define an identifier for any environment value, if it's not already defined.
    * The callback is invoked when the value match the identifier to modify its
    * interpolation.
+   *
+   * @param name - The identifier name
+   * @param callback - Callback function to process the identifier value
    */
   static defineIdentifierIfMissing(
     name: string,
@@ -91,6 +108,8 @@ export class Env<EnvValues extends Record<string, any>> {
 
   /**
    * Remove an identifier
+   *
+   * @param name - The identifier name to remove
    */
   static removeIdentifier(name: string): void {
     EnvParser.removeIdentifier(name)
@@ -105,6 +124,9 @@ export class Env<EnvValues extends Record<string, any>> {
    * Define the validation rules for validating environment
    * variables. The return value is an instance of the
    * env validator
+   *
+   * @param schema - Validation schema object
+   * @returns EnvValidator instance
    */
   static rules<T extends { [key: string]: ValidateFn<unknown> }>(schema: T): EnvValidator<T> {
     const validator = new EnvValidator<T>(schema)
@@ -125,6 +147,10 @@ export class Env<EnvValues extends Record<string, any>> {
    * // With default value
    * Env.get('PORT', 3000)
    * ```
+   *
+   * @param key - The environment variable key
+   * @param defaultValue - Default value if key is not found
+   * @returns The environment variable value or default
    */
   get<K extends keyof EnvValues>(key: K): EnvValues[K]
   get<K extends keyof EnvValues>(
@@ -167,6 +193,9 @@ export class Env<EnvValues extends Record<string, any>> {
    * Env.get('PORT') === 3000 // true
    * process.env.PORT === '3000' // true
    * ```
+   *
+   * @param key - The environment variable key
+   * @param value - The value to set
    */
   set<K extends keyof EnvValues>(key: K, value: EnvValues[K]): void
   set(key: string, value: string): void
