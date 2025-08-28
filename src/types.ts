@@ -7,4 +7,8 @@
  * file that was distributed with this source code.
  */
 
-export type EnvIdentifierCallback = (value: string, appRoot: URL) => Promise<string> | string
+export type EnvIdentifierCallback = (
+  value: string,
+  key: string,
+  appRoot: URL
+) => Promise<string> | string

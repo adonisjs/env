@@ -10,6 +10,7 @@
 import { test } from '@japa/runner'
 import { type DotenvParseOutput } from 'dotenv'
 import { EnvParser } from '../src/parser.js'
+import { readFile } from 'node:fs/promises'
 
 test.group('Env Parser', () => {
   test('parse env string and interpolate values', async ({ assert, fs, expectTypeOf }) => {
@@ -55,40 +56,35 @@ test.group('Env Parser', () => {
 
   test('define identifier', async ({ assert, fs, cleanup, expectTypeOf }) => {
     cleanup(() => {
-      EnvParser.removeIdentifier('file')
+      EnvParser.removeIdentifier('uid')
     })
 
-    EnvParser.defineIdentifier('file', (_value: string) => {
-      return '3000'
+    EnvParser.defineIdentifier('uid', (_value: string) => {
+      return '100'
     })
 
-    const envString = ['ENV_USER=file:romain'].join('\n')
+    const envString = ['ENV_USER=uid:romain'].join('\n')
     const parser = new EnvParser(envString, fs.baseUrl)
     const parsed = await parser.parse()
 
     expectTypeOf(parsed).toEqualTypeOf<DotenvParseOutput>()
     assert.deepEqual(parsed, {
-      ENV_USER: '3000',
+      ENV_USER: '100',
     })
   })
 
-  test('throw exception when identifier is already defined', async ({ assert, cleanup }) => {
+  test('throw exception when identifier is already defined', async ({ cleanup }) => {
     cleanup(() => {
-      EnvParser.removeIdentifier('file')
+      EnvParser.removeIdentifier('uid')
     })
 
-    EnvParser.defineIdentifier('file', (_value: string) => {
+    EnvParser.defineIdentifier('uid', (_value: string) => {
       return '3000'
     })
-
-    assert.throws(
-      () =>
-        EnvParser.defineIdentifier('file', (_value: string) => {
-          return '3000'
-        }),
-      'The identifier "file" is already defined'
-    )
-  })
+    EnvParser.defineIdentifier('uid', (_value: string) => {
+      return '3000'
+    })
+  }).throws('The identifier "uid" is already defined')
 
   test('silently ignore when adding the same identifier with IfMissing variant', async ({
     fs,
@@ -97,24 +93,24 @@ test.group('Env Parser', () => {
     expectTypeOf,
   }) => {
     cleanup(() => {
-      EnvParser.removeIdentifier('file')
+      EnvParser.removeIdentifier('uid')
     })
 
-    EnvParser.defineIdentifier('file', (_value: string) => {
-      return '3000'
+    EnvParser.defineIdentifierIfMissing('uid', (_value: string) => {
+      return '100'
     })
 
-    EnvParser.defineIdentifierIfMissing('file', (_value: string) => {
-      return '4000'
+    EnvParser.defineIdentifierIfMissing('uid', (_value: string) => {
+      return '200'
     })
 
-    const envString = ['ENV_USER=file:romain'].join('\n')
+    const envString = ['ENV_USER=uid:romain'].join('\n')
     const parser = new EnvParser(envString, fs.baseUrl)
     const parsed = await parser.parse()
 
     expectTypeOf(parsed).toEqualTypeOf<DotenvParseOutput>()
     assert.deepEqual(parsed, {
-      ENV_USER: '3000',
+      ENV_USER: '100',
     })
   })
 
@@ -125,32 +121,24 @@ test.group('Env Parser', () => {
     expectTypeOf,
   }) => {
     cleanup(() => {
-      EnvParser.removeIdentifier('file')
+      EnvParser.removeIdentifier('uid')
     })
 
-    EnvParser.defineIdentifier('file', (_value: string) => {
+    EnvParser.defineIdentifier('uid', (_value: string) => {
       return '3000'
     })
 
-    const envString = ['ENV_USER=file_romain:romain'].join('\n')
+    const envString = ['ENV_USER=uid_v4:romain'].join('\n')
     const parser = new EnvParser(envString, fs.baseUrl)
     const parsed = await parser.parse()
 
     expectTypeOf(parsed).toEqualTypeOf<DotenvParseOutput>()
     assert.deepEqual(parsed, {
-      ENV_USER: 'file_romain:romain',
+      ENV_USER: 'uid_v4:romain',
     })
   })
 
-  test('allows to escape the identifier', async ({ assert, fs, cleanup, expectTypeOf }) => {
-    cleanup(() => {
-      EnvParser.removeIdentifier('file')
-    })
-
-    EnvParser.defineIdentifier('file', (_value: string) => {
-      return '3000'
-    })
-
+  test('escape identifier', async ({ assert, fs, expectTypeOf }) => {
     const envString = ['ENV_USER=file\\:///root/app/user.js'].join('\n')
     const parser = new EnvParser(envString, fs.baseUrl)
     const parsed = await parser.parse()
@@ -160,15 +148,6 @@ test.group('Env Parser', () => {
       ENV_USER: 'file:///root/app/user.js',
     })
   })
-
-  test('throw when identifier is already defined', async ({ cleanup }) => {
-    cleanup(() => {
-      EnvParser.removeIdentifier('file')
-    })
-
-    EnvParser.defineIdentifier('file', (_value: string) => 'test')
-    EnvParser.defineIdentifier('file', (_value: string) => 'test')
-  }).throws('The identifier "file" is already defined')
 
   test('give preference to the parsed values when interpolating values', async ({
     fs,
@@ -234,4 +213,24 @@ test.group('Env Parser', () => {
       'REDIS-USER': 'virk',
     })
   })
+
+  test('read file contents using the file identifier', async ({ assert, expectTypeOf }) => {
+    const envString = ['PACKAGE_FILE=file:./package.json'].join('\n')
+    const appRoot = new URL('../', import.meta.url)
+    const parser = new EnvParser(envString, appRoot)
+    const parsed = await parser.parse()
+
+    expectTypeOf(parsed).toEqualTypeOf<DotenvParseOutput>()
+    assert.deepEqual(parsed, {
+      PACKAGE_FILE: await readFile(new URL('./package.json', appRoot), 'utf-8'),
+    })
+  })
+
+  test('throw error when file is missing', async ({ fs, expectTypeOf }) => {
+    const envString = ['PACKAGE_FILE=file:./package.json'].join('\n')
+    const parser = new EnvParser(envString, fs.baseUrl)
+    const parsed = await parser.parse()
+
+    expectTypeOf(parsed).toEqualTypeOf<DotenvParseOutput>()
+  }).throws(/Cannot process "PACKAGE_FILE" env variable./)
 })

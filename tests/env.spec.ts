@@ -17,45 +17,34 @@ test.group('Env', (group) => {
   })
 
   test('define identifier', async ({ assert, cleanup, fs }) => {
-    assert.plan(1)
-
     cleanup(() => {
-      Env.removeIdentifier('file')
-      delete process.env.PORT
+      delete process.env.ENV_USER
+      Env.removeIdentifier('uid')
+    })
+    Env.defineIdentifier('uid', () => {
+      return '100'
     })
 
-    Env.defineIdentifier('file', (_value: string) => {
-      assert.isTrue(true)
-
-      return '3000'
+    await fs.create('.env', 'ENV_USER=uid:romain')
+    const env = await Env.create(fs.baseUrl, {
+      ENV_USER: Env.schema.number(),
     })
-
-    await fs.create('.env', 'PORT=file:romain')
-    await Env.create(fs.baseUrl, {
-      PORT: Env.schema.number(),
-    })
+    assert.equal(env.get('ENV_USER'), 100)
   })
 
-  test('throw exception when identifier is already defined', async ({ assert, cleanup }) => {
-    assert.plan(1)
-
+  test('throw exception when identifier is already defined', async ({ cleanup }) => {
     cleanup(() => {
-      Env.removeIdentifier('file')
-      delete process.env.PORT
+      Env.removeIdentifier('uid')
+      delete process.env.ENV_USER
     })
 
-    Env.defineIdentifier('file', (_value: string) => {
+    Env.defineIdentifier('uid', () => {
       return '3000'
     })
-
-    assert.throws(
-      () =>
-        Env.defineIdentifier('file', (_value: string) => {
-          return '3000'
-        }),
-      'The identifier "file" is already defined'
-    )
-  })
+    Env.defineIdentifier('uid', () => {
+      return '3000'
+    })
+  }).throws('The identifier "uid" is already defined')
 
   test('silently ignore when adding the same identifier with IfMissing variant', async ({
     assert,
@@ -63,25 +52,23 @@ test.group('Env', (group) => {
     fs,
   }) => {
     cleanup(() => {
-      Env.removeIdentifier('file')
-      delete process.env.PORT
+      Env.removeIdentifier('uid')
+      delete process.env.ENV_USER
+    })
+    Env.defineIdentifier('uid', (_value: string) => {
+      return '100'
+    })
+    Env.defineIdentifierIfMissing('uid', (_value: string) => {
+      return '200'
     })
 
-    Env.defineIdentifier('file', (_value: string) => {
-      return '3000'
-    })
-
-    Env.defineIdentifierIfMissing('file', (_value: string) => {
-      return '4000'
-    })
-
-    await fs.create('.env', 'PORT=file:romain')
+    await fs.create('.env', 'ENV_USER=uid:romain')
     const env = await Env.create(fs.baseUrl, {
-      PORT: Env.schema.number(),
+      ENV_USER: Env.schema.number(),
     })
 
-    assert.strictEqual(process.env.PORT, '3000')
-    assert.equal(env.get('PORT'), 3000)
+    assert.strictEqual(process.env.ENV_USER, '100')
+    assert.equal(env.get('ENV_USER'), 100)
   })
 
   test('read values from process.env', ({ assert, expectTypeOf, cleanup }) => {

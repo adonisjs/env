@@ -10,6 +10,8 @@
 import dotenv, { type DotenvParseOutput } from 'dotenv'
 import { type EnvIdentifierCallback } from './types.ts'
 import { E_IDENTIFIER_ALREADY_DEFINED } from './errors.js'
+import { readFile } from 'node:fs/promises'
+import { RuntimeException } from '@poppinss/utils/exception'
 
 /**
  * Env parser parses the environment variables from a string formatted
@@ -55,7 +57,25 @@ export class EnvParser {
   #envContents: string
   #appRoot: URL
   #preferProcessEnv: boolean = true
-  static #identifiers: Record<string, EnvIdentifierCallback> = {}
+  static #identifiers: Record<string, EnvIdentifierCallback> = {
+    async file(value, key, appRoot) {
+      const filePath = new URL(value, appRoot)
+      try {
+        const contents = await readFile(filePath, 'utf-8')
+        return contents
+      } catch (error) {
+        if (error.code === 'ENOENT') {
+          throw new RuntimeException(
+            `Cannot process "${key}" env variable. Unable to locate file "${filePath}"`,
+            {
+              cause: error,
+            }
+          )
+        }
+        throw error
+      }
+    },
+  }
 
   constructor(envContents: string, appRoot: URL, options?: { ignoreProcessEnv: boolean }) {
     if (options?.ignoreProcessEnv) {
@@ -238,6 +258,7 @@ export class EnvParser {
           if (value.startsWith(`${identifier}:`)) {
             result[key] = await EnvParser.#identifiers[identifier](
               value.substring(identifier.length + 1),
+              key,
               this.#appRoot
             )
 
