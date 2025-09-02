@@ -51,6 +51,7 @@
     "prettier": "^3.6.2",
     "release-it": "^19.0.4",
     "tsup": "^8.5.0",
+    "typedoc": "^0.28.12",
     "typescript": "^5.9.2"
   },
   "dependencies": {
