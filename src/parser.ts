@@ -17,7 +17,7 @@ import { RuntimeException } from '@poppinss/utils/exception'
  * Env parser parses the environment variables from a string formatted
  * as a key-value pair seperated using an `=`. For example:
  *
- * ```dotenv
+ * ```
  * PORT=3333
  * HOST=127.0.0.1
  * ```
@@ -25,7 +25,7 @@ import { RuntimeException } from '@poppinss/utils/exception'
  * The variables can reference other environment variables as well using `$`.
  * For example:
  *
- * ```dotenv
+ * ```
  * PORT=3333
  * REDIS_PORT=$PORT
  * ```
@@ -33,14 +33,14 @@ import { RuntimeException } from '@poppinss/utils/exception'
  * The variables using characters other than letters can wrap variable
  * named inside a curly brace.
  *
- * ```dotenv
+ * ```
  * APP-PORT=3333
  * REDIS_PORT=${APP-PORT}
  * ```
  *
  * You can escape the `$` sign with a backtick.
  *
- * ```dotenv
+ * ```
  * REDIS_PASSWORD=foo\$123
  * ```
  *
