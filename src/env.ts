@@ -7,12 +7,12 @@
  * file that was distributed with this source code.
  */
 
-import { schema as envSchema } from '@poppinss/validator-lite'
 import type { ValidateFn } from '@poppinss/validator-lite/types'
 
 import { EnvParser } from './parser.ts'
 import { EnvValidator } from './validator.ts'
 import { EnvProcessor } from './processor.ts'
+import { schema as envSchema } from './schema.ts'
 
 /**
  * A wrapper over "process.env" with types information.

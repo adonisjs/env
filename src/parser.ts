@@ -7,11 +7,12 @@
  * file that was distributed with this source code.
  */
 
+import { readFile } from 'node:fs/promises'
 import dotenv, { type DotenvParseOutput } from 'dotenv'
+import { RuntimeException } from '@poppinss/utils/exception'
+
 import { type EnvIdentifierCallback } from './types.ts'
 import { E_IDENTIFIER_ALREADY_DEFINED } from './errors.ts'
-import { readFile } from 'node:fs/promises'
-import { RuntimeException } from '@poppinss/utils/exception'
 
 /**
  * Env parser parses the environment variables from a string formatted

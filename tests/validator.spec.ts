@@ -9,9 +9,11 @@
 
 import { test } from '@japa/runner'
 import string from '@poppinss/utils/string'
-import { schema } from '@poppinss/validator-lite'
+
+import { schema } from '../src/schema.ts'
 import { EnvValidator } from '../src/validator.ts'
 import { E_INVALID_ENV_VARIABLES } from '../src/errors.ts'
+import { Secret } from '@poppinss/utils'
 
 test.group('Env Validator', () => {
   test('validate values against pre-defined schema', async ({ assert, expectTypeOf }) => {
@@ -102,5 +104,19 @@ test.group('Env Validator', () => {
     const output = validator.validate({})
     expectTypeOf(output).toEqualTypeOf<{ PORT: number }>()
     assert.deepEqual(output, { PORT: 3333 })
+  })
+
+  test('convert value to a secret', async ({ assert, expectTypeOf }) => {
+    const validator = new EnvValidator({
+      PASSWORD: schema.secret(),
+    })
+
+    const values = { PASSWORD: 'helloworld' }
+    const output = validator.validate(values)
+    expectTypeOf(output).toEqualTypeOf<{ PASSWORD: Secret<string> }>()
+
+    assert.instanceOf(output.PASSWORD, Secret)
+    assert.equal(output.PASSWORD.release(), 'helloworld')
+    assert.deepEqual(values, { PASSWORD: 'helloworld' })
   })
 })
