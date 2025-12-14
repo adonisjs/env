@@ -7,8 +7,8 @@
  * file that was distributed with this source code.
  */
 
+import { parseEnv } from 'node:util'
 import { readFile } from 'node:fs/promises'
-import dotenv, { type DotenvParseOutput } from 'dotenv'
 import { RuntimeException } from '@poppinss/utils/exception'
 
 import { type EnvIdentifierCallback } from './types.ts'
@@ -178,7 +178,7 @@ export class EnvParser {
    * @param parsed - Parsed environment variables object
    * @returns The resolved environment variable value
    */
-  #getValue(key: string, parsed: DotenvParseOutput): string {
+  #getValue(key: string, parsed: NodeJS.Dict<string>): string {
     if (this.#preferProcessEnv && process.env[key]) {
       return process.env[key]!
     }
@@ -197,7 +197,7 @@ export class EnvParser {
    * @param parsed - Parsed environment variables object
    * @returns Interpolated value
    */
-  #interpolateMustache(token: string, parsed: DotenvParseOutput): string {
+  #interpolateMustache(token: string, parsed: NodeJS.Dict<string>): string {
     /**
      * Finding the closing brace. If closing brace is missing, we
      * consider the block as a normal string
@@ -242,7 +242,7 @@ export class EnvParser {
    * @param parsed - Parsed environment variables object
    * @returns Interpolated value
    */
-  #interpolate(value: string, parsed: DotenvParseOutput): string {
+  #interpolate(value: string, parsed: NodeJS.Dict<string>): string {
     const tokens = value.split('$')
 
     let newValue = ''
@@ -302,10 +302,10 @@ export class EnvParser {
    *
    * @returns Promise resolving to parsed environment variables
    */
-  async parse(): Promise<DotenvParseOutput> {
-    const envCollection = dotenv.parse(this.#envContents.trim())
+  async parse(): Promise<NodeJS.Dict<string>> {
+    const envCollection = parseEnv(this.#envContents.trim())
     const identifiers = Object.keys(EnvParser.#identifiers)
-    let result: DotenvParseOutput = {}
+    let result: NodeJS.Dict<string> = {}
 
     $keyLoop: for (const key in envCollection) {
       const value = this.#getValue(key, envCollection)

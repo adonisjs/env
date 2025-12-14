@@ -8,7 +8,6 @@
  */
 
 import { test } from '@japa/runner'
-import { type DotenvParseOutput } from 'dotenv'
 import { EnvParser } from '../src/parser.ts'
 import { readFile } from 'node:fs/promises'
 
@@ -34,7 +33,7 @@ test.group('Env Parser', () => {
 
     const parser = new EnvParser(envString, fs.baseUrl)
     const parsed = await parser.parse()
-    expectTypeOf(parsed).toEqualTypeOf<DotenvParseOutput>()
+    expectTypeOf(parsed).toEqualTypeOf<NodeJS.Dict<string>>()
     assert.deepEqual(parsed, {
       'PORT': '3333',
       'HOST': '127.0.0.1',
@@ -67,7 +66,7 @@ test.group('Env Parser', () => {
     const parser = new EnvParser(envString, fs.baseUrl)
     const parsed = await parser.parse()
 
-    expectTypeOf(parsed).toEqualTypeOf<DotenvParseOutput>()
+    expectTypeOf(parsed).toEqualTypeOf<NodeJS.Dict<string>>()
     assert.deepEqual(parsed, {
       ENV_USER: '100',
     })
@@ -108,7 +107,7 @@ test.group('Env Parser', () => {
     const parser = new EnvParser(envString, fs.baseUrl)
     const parsed = await parser.parse()
 
-    expectTypeOf(parsed).toEqualTypeOf<DotenvParseOutput>()
+    expectTypeOf(parsed).toEqualTypeOf<NodeJS.Dict<string>>()
     assert.deepEqual(parsed, {
       ENV_USER: '100',
     })
@@ -132,7 +131,7 @@ test.group('Env Parser', () => {
     const parser = new EnvParser(envString, fs.baseUrl)
     const parsed = await parser.parse()
 
-    expectTypeOf(parsed).toEqualTypeOf<DotenvParseOutput>()
+    expectTypeOf(parsed).toEqualTypeOf<NodeJS.Dict<string>>()
     assert.deepEqual(parsed, {
       ENV_USER: 'uid_v4:romain',
     })
@@ -143,7 +142,7 @@ test.group('Env Parser', () => {
     const parser = new EnvParser(envString, fs.baseUrl)
     const parsed = await parser.parse()
 
-    expectTypeOf(parsed).toEqualTypeOf<DotenvParseOutput>()
+    expectTypeOf(parsed).toEqualTypeOf<NodeJS.Dict<string>>()
     assert.deepEqual(parsed, {
       ENV_USER: 'file:///root/app/user.js',
     })
@@ -164,7 +163,7 @@ test.group('Env Parser', () => {
     const parser = new EnvParser(envString, fs.baseUrl, { ignoreProcessEnv: true })
 
     const parsed = await parser.parse()
-    expectTypeOf(parsed).toEqualTypeOf<DotenvParseOutput>()
+    expectTypeOf(parsed).toEqualTypeOf<NodeJS.Dict<string>>()
     assert.deepEqual(parsed, {
       'ENV_USER': 'romain',
       'REDIS-USER': 'romain',
@@ -186,7 +185,7 @@ test.group('Env Parser', () => {
     const parser = new EnvParser(envString, fs.baseUrl)
 
     const parsed = await parser.parse()
-    expectTypeOf(parsed).toEqualTypeOf<DotenvParseOutput>()
+    expectTypeOf(parsed).toEqualTypeOf<NodeJS.Dict<string>>()
     assert.deepEqual(parsed, {
       'ENV_USER': 'virk',
       'REDIS-USER': 'virk',
@@ -208,7 +207,7 @@ test.group('Env Parser', () => {
     const parser = new EnvParser(envString, fs.baseUrl)
 
     const parsed = await parser.parse()
-    expectTypeOf(parsed).toEqualTypeOf<DotenvParseOutput>()
+    expectTypeOf(parsed).toEqualTypeOf<NodeJS.Dict<string>>()
     assert.deepEqual(parsed, {
       'REDIS-USER': 'virk',
     })
@@ -220,7 +219,7 @@ test.group('Env Parser', () => {
     const parser = new EnvParser(envString, appRoot)
     const parsed = await parser.parse()
 
-    expectTypeOf(parsed).toEqualTypeOf<DotenvParseOutput>()
+    expectTypeOf(parsed).toEqualTypeOf<NodeJS.Dict<string>>()
     assert.deepEqual(parsed, {
       PACKAGE_FILE: await readFile(new URL('./package.json', appRoot), 'utf-8'),
     })
@@ -231,6 +230,6 @@ test.group('Env Parser', () => {
     const parser = new EnvParser(envString, fs.baseUrl)
     const parsed = await parser.parse()
 
-    expectTypeOf(parsed).toEqualTypeOf<DotenvParseOutput>()
+    expectTypeOf(parsed).toEqualTypeOf<NodeJS.Dict<string>>()
   }).throws(/Cannot process "PACKAGE_FILE" env variable./)
 })
