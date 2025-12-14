@@ -95,4 +95,38 @@ test.group('Env processor', () => {
     assert.equal(process.env.PORT, '3000')
     assert.deepEqual(values, { HOST: 'localhost', PORT: '3000' })
   })
+
+  test('overide and set value to empty string inside .env.local file', async ({
+    assert,
+    cleanup,
+    fs,
+  }) => {
+    cleanup(() => {
+      delete process.env.PORT
+      delete process.env.HOST
+    })
+
+    await fs.create(
+      '.env',
+      `
+    HOST=localhost
+    PORT=3000
+    `
+    )
+
+    await fs.create(
+      '.env.local',
+      `
+      HOST=
+      PORT=4000
+      `
+    )
+
+    const app = new EnvProcessor(fs.baseUrl)
+
+    const values = await app.process()
+    assert.equal(process.env.HOST, '')
+    assert.equal(process.env.PORT, '4000')
+    assert.deepEqual(values, { HOST: '', PORT: '4000' })
+  })
 })

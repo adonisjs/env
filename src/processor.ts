@@ -53,12 +53,12 @@ export class EnvProcessor {
     Object.keys(values).forEach((key) => {
       let value = process.env[key]
 
-      if (!value) {
+      if (value === undefined) {
         value = values[key]
         process.env[key] = values[key]
       }
 
-      if (!store[key]) {
+      if (key in store === false) {
         store[key] = value
       }
     })
