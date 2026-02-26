@@ -74,6 +74,10 @@ export class EnvParser {
    * Static collection of registered identifiers with their callbacks
    */
   static #identifiers: Record<string, EnvIdentifierCallback> = {
+    base64(value) {
+      return Buffer.from(value, 'base64').toString('utf-8')
+    },
+
     async file(value, key, appRoot) {
       const filePath = new URL(value, appRoot)
       try {

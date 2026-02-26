@@ -82,6 +82,12 @@ console.log(await envParser.parse()) // { DB_PASSWORD: 'Value from file /run/sec
 
 This can be useful when you are using secrets manager like `Docker Secret`, `HashiCorp Vault`, `Google Secrets Manager` and others to manage your secrets.
 
+The parser also includes a built-in `base64` identifier. It decodes values using a Node.js `Buffer`.
+
+```env
+APP_KEY=base64:YWRvbmlzanMtcnVsZXM=
+```
+
 ## Validating environment variables
 Once you have the parsed objects, you can optionally validate them against a pre-defined schema. We recommend validation for the following reasons.
 

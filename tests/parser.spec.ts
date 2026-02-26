@@ -225,6 +225,17 @@ test.group('Env Parser', () => {
     })
   })
 
+  test('decode value using the base64 identifier', async ({ assert, fs, expectTypeOf }) => {
+    const envString = ['APP_KEY=base64:YWRvbmlzanMtcnVsZXM='].join('\n')
+    const parser = new EnvParser(envString, fs.baseUrl)
+    const parsed = await parser.parse()
+
+    expectTypeOf(parsed).toEqualTypeOf<NodeJS.Dict<string>>()
+    assert.deepEqual(parsed, {
+      APP_KEY: 'adonisjs-rules',
+    })
+  })
+
   test('throw error when file is missing', async ({ fs, expectTypeOf }) => {
     const envString = ['PACKAGE_FILE=file:./package.json'].join('\n')
     const parser = new EnvParser(envString, fs.baseUrl)
