@@ -7,13 +7,22 @@
  * file that was distributed with this source code.
  */
 
-import { join } from 'node:path'
+import { join, relative } from 'node:path'
 import { test } from '@japa/runner'
 import { EnvLoader } from '../src/loader.ts'
 
 test.group('Env loader', () => {
   test('return empty string when .env files are missing', async ({ assert, expectTypeOf, fs }) => {
-    const envFiles = await new EnvLoader(fs.baseUrl).load()
+    const loader = new EnvLoader(fs.baseUrl)
+    const paths = [join(fs.basePath, '.env.local'), join(fs.basePath, '.env')]
+
+    assert.deepEqual(loader.getPaths(), paths)
+
+    const envFiles = await loader.load()
+    assert.deepEqual(
+      envFiles.map(({ path }) => path),
+      paths
+    )
     assert.deepEqual(envFiles, [
       {
         path: join(fs.basePath, '.env.local'),
@@ -30,6 +39,7 @@ test.group('Env loader', () => {
     expectTypeOf(envFiles).toEqualTypeOf<
       { path: string; contents: string; fileExists: boolean }[]
     >()
+    expectTypeOf(loader.getPaths()).toEqualTypeOf<string[]>()
   })
 
   test('get contents of the .env file from the app root', async ({ assert, expectTypeOf, fs }) => {
@@ -57,7 +67,7 @@ test.group('Env loader', () => {
   test('use base path (as string) to load .env file', async ({ assert, expectTypeOf, fs }) => {
     await fs.create('.env', 'PORT=3000')
 
-    const envFiles = await new EnvLoader(fs.baseUrl).load()
+    const envFiles = await new EnvLoader(relative(process.cwd(), fs.basePath)).load()
     assert.deepEqual(envFiles, [
       {
         path: join(fs.basePath, '.env.local'),
@@ -77,18 +87,32 @@ test.group('Env loader', () => {
   })
 
   test('load env.[NODE_ENV] files', async ({ assert, expectTypeOf, cleanup, fs }) => {
-    process.env.NODE_ENV = 'production'
+    process.env.NODE_ENV = 'development'
     cleanup(() => {
       delete process.env.NODE_ENV
     })
 
     await fs.create('.env', 'PORT=3000')
-    await fs.create('.env.production', 'PORT=4000')
+    await fs.create('.env.development', 'PORT=4000')
 
-    const envFiles = await new EnvLoader(fs.baseUrl).load()
+    const loader = new EnvLoader(fs.baseUrl)
+    const paths = [
+      join(fs.basePath, '.env.development.local'),
+      join(fs.basePath, '.env.local'),
+      join(fs.basePath, '.env.development'),
+      join(fs.basePath, '.env'),
+    ]
+
+    assert.deepEqual(loader.getPaths(), paths)
+
+    const envFiles = await loader.load()
+    assert.deepEqual(
+      envFiles.map(({ path }) => path),
+      paths
+    )
     assert.deepEqual(envFiles, [
       {
-        path: join(fs.basePath, '.env.production.local'),
+        path: join(fs.basePath, '.env.development.local'),
         contents: '',
         fileExists: false,
       },
@@ -98,7 +122,7 @@ test.group('Env loader', () => {
         fileExists: false,
       },
       {
-        path: join(fs.basePath, '.env.production'),
+        path: join(fs.basePath, '.env.development'),
         contents: 'PORT=4000',
         fileExists: true,
       },
@@ -123,7 +147,20 @@ test.group('Env loader', () => {
     await fs.create('.env', 'PORT=3000')
     await fs.create('.env.testing', 'PORT=4000')
 
-    const envFiles = await new EnvLoader(fs.baseUrl).load()
+    const loader = new EnvLoader(fs.baseUrl)
+    const paths = [
+      join(fs.basePath, '.env.testing.local'),
+      join(fs.basePath, '.env.testing'),
+      join(fs.basePath, '.env'),
+    ]
+
+    assert.deepEqual(loader.getPaths(), paths)
+
+    const envFiles = await loader.load()
+    assert.deepEqual(
+      envFiles.map(({ path }) => path),
+      paths
+    )
     assert.deepEqual(envFiles, [
       {
         path: join(fs.basePath, '.env.testing.local'),
@@ -153,7 +190,16 @@ test.group('Env loader', () => {
       delete process.env.ENV_PATH
     })
 
-    const envFiles = await new EnvLoader(fs.baseUrl).load()
+    const loader = new EnvLoader(fs.baseUrl)
+    const paths = [join(fs.basePath, 'foo/bar', '.env.local'), join(fs.basePath, 'foo/bar', '.env')]
+
+    assert.deepEqual(loader.getPaths(), paths)
+
+    const envFiles = await loader.load()
+    assert.deepEqual(
+      envFiles.map(({ path }) => path),
+      paths
+    )
     assert.deepEqual(envFiles, [
       {
         path: join(fs.basePath, 'foo/bar', '.env.local'),
@@ -174,7 +220,16 @@ test.group('Env loader', () => {
       delete process.env.ENV_PATH
     })
 
-    const envFiles = await new EnvLoader(fs.baseUrl).load()
+    const loader = new EnvLoader(fs.baseUrl)
+    const paths = [join(fs.basePath, 'foo/bar', '.env.local'), join(fs.basePath, 'foo/bar', '.env')]
+
+    assert.deepEqual(loader.getPaths(), paths)
+
+    const envFiles = await loader.load()
+    assert.deepEqual(
+      envFiles.map(({ path }) => path),
+      paths
+    )
     assert.deepEqual(envFiles, [
       {
         path: join(fs.basePath, 'foo/bar', '.env.local'),
@@ -187,5 +242,44 @@ test.group('Env loader', () => {
         fileExists: false,
       },
     ])
+  })
+
+  test('do not include .env.local in test env', async ({ assert, cleanup, fs }) => {
+    process.env.NODE_ENV = 'test'
+    cleanup(() => {
+      delete process.env.NODE_ENV
+    })
+
+    const loader = new EnvLoader(fs.baseUrl)
+    const paths = [
+      join(fs.basePath, '.env.test.local'),
+      join(fs.basePath, '.env.test'),
+      join(fs.basePath, '.env'),
+    ]
+
+    assert.deepEqual(loader.getPaths(), paths)
+
+    const envFiles = await loader.load()
+    assert.deepEqual(
+      envFiles.map(({ path }) => path),
+      paths
+    )
+  })
+
+  test('include .env.example when enabled', async ({ assert, fs }) => {
+    const loader = new EnvLoader(fs.baseUrl, true)
+    const paths = [
+      join(fs.basePath, '.env.local'),
+      join(fs.basePath, '.env'),
+      join(fs.basePath, '.env.example'),
+    ]
+
+    assert.deepEqual(loader.getPaths(), paths)
+
+    const envFiles = await loader.load()
+    assert.deepEqual(
+      envFiles.map(({ path }) => path),
+      paths
+    )
   })
 })

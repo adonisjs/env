@@ -9,7 +9,7 @@
 
 import { fileURLToPath } from 'node:url'
 import { readFile } from 'node:fs/promises'
-import { isAbsolute, join } from 'node:path'
+import { join, resolve } from 'node:path'
 
 import debug from './debug.ts'
 
@@ -58,6 +58,13 @@ export class EnvLoader {
   }
 
   /**
+   * Returns the directory from which dot-env files are loaded
+   */
+  #getBasePath(): string {
+    return resolve(this.#appRoot, process.env.ENV_PATH || '')
+  }
+
+  /**
    * Optionally read a file from the disk
    *
    * @param filePath - Path to the file to read
@@ -78,6 +85,35 @@ export class EnvLoader {
   }
 
   /**
+   * Returns the absolute paths of the dot-env files in loading priority order
+   */
+  getPaths(): string[] {
+    const NODE_ENV = process.env.NODE_ENV
+    const baseEnvPath = this.#getBasePath()
+    const envFiles: string[] = []
+
+    if (NODE_ENV) {
+      envFiles.push(join(baseEnvPath, `.env.${NODE_ENV}.local`))
+    }
+
+    if (!NODE_ENV || !['test', 'testing'].includes(NODE_ENV)) {
+      envFiles.push(join(baseEnvPath, '.env.local'))
+    }
+
+    if (NODE_ENV) {
+      envFiles.push(join(baseEnvPath, `.env.${NODE_ENV}`))
+    }
+
+    envFiles.push(join(baseEnvPath, '.env'))
+
+    if (this.#loadExampleFile) {
+      envFiles.push(join(baseEnvPath, '.env.example'))
+    }
+
+    return envFiles
+  }
+
+  /**
    * Load contents of the main dot-env file and the current
    * environment dot-env file
    *
@@ -86,79 +122,19 @@ export class EnvLoader {
   async load(): Promise<{ contents: string; path: string; fileExists: boolean }[]> {
     const ENV_PATH = process.env.ENV_PATH
     const NODE_ENV = process.env.NODE_ENV
+    const paths = this.getPaths()
     const envFiles: { path: string; contents: string; fileExists: boolean }[] = []
 
     if (debug.enabled) {
       debug('ENV_PATH variable is %s', ENV_PATH ? 'set' : 'not set')
       debug('NODE_ENV variable is %s', NODE_ENV ? 'set' : 'not set')
+      debug('dot-env files base path "%s"', this.#getBasePath())
     }
 
-    /**
-     * Base path to load .env files from
-     */
-    const baseEnvPath = ENV_PATH
-      ? isAbsolute(ENV_PATH)
-        ? ENV_PATH
-        : join(this.#appRoot, ENV_PATH)
-      : this.#appRoot
-
-    if (debug.enabled) {
-      debug('dot-env files base path "%s"', baseEnvPath)
-    }
-
-    /**
-     * 1st
-     * The top most priority is given to the ".env.[NODE_ENV].local" file
-     */
-    if (NODE_ENV) {
-      const nodeEnvLocalFile = join(baseEnvPath, `.env.${NODE_ENV}.local`)
+    for (const path of paths) {
       envFiles.push({
-        path: nodeEnvLocalFile,
-        ...(await this.#loadFile(nodeEnvLocalFile)),
-      })
-    }
-
-    /**
-     * 2nd
-     * Next, we give priority to the ".env.local" file
-     */
-    if (!NODE_ENV || !['test', 'testing'].includes(NODE_ENV)) {
-      const envLocalFile = join(baseEnvPath, '.env.local')
-      envFiles.push({
-        path: envLocalFile,
-        ...(await this.#loadFile(envLocalFile)),
-      })
-    }
-
-    /**
-     * 3rd
-     * Next, we give priority to the ".env.[NODE_ENV]" file
-     */
-    if (NODE_ENV) {
-      const nodeEnvFile = join(baseEnvPath, `.env.${NODE_ENV}`)
-      envFiles.push({
-        path: nodeEnvFile,
-        ...(await this.#loadFile(nodeEnvFile)),
-      })
-    }
-
-    /**
-     * Finally, we push the contents of the ".env" file.
-     */
-    const envFile = join(baseEnvPath, '.env')
-    envFiles.push({
-      path: envFile,
-      ...(await this.#loadFile(envFile)),
-    })
-
-    /**
-     * Load example file
-     */
-    if (this.#loadExampleFile) {
-      const envExampleFile = join(baseEnvPath, '.env.example')
-      envFiles.push({
-        path: envExampleFile,
-        ...(await this.#loadFile(envExampleFile)),
+        path,
+        ...(await this.#loadFile(path)),
       })
     }
 

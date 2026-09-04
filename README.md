@@ -23,10 +23,13 @@ import { EnvLoader } from '@adonisjs/env'
 const lookupPath = new URL('./', import.meta.url)
 const loader = new EnvLoader(lookupPath)
 
+const envPaths = loader.getPaths()
 const envFiles = await loader.load()
 ```
 
-The return value is an array of objects with following properties.
+`getPaths` returns the absolute paths of every dot-env file the loader may load, in priority order. It includes files that do not exist and does not read from the filesystem.
+
+The `load` return value is an array of objects with following properties.
 
 - `path`: The path to the loaded dot-env file.
 - `contents`: The contents of the file.
@@ -39,6 +42,7 @@ Following is the list of loaded files. The array is ordered by the priority of t
 | 2nd | `.env.local` | All | Yes | Loaded in all the environments except `test` or `testing` environments |
 | 3rd | `.env.[NODE_ENV]` | Current environment | No | Loaded when `NODE_ENV` is set |
 | 4th | `.env` | All | Depends | Loaded in all the environments. You should `.gitignore` it when storing secrets in this file |
+| 5th | `.env.example` | All | No | Loaded when `loadExampleFile` is enabled |
 
 ## EnvParser
 The `EnvParser` class is responsible for parsing the contents of the `.env` file(s) and converting them into an object.
