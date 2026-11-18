@@ -213,6 +213,72 @@ test.group('Env Parser', () => {
     })
   })
 
+  test('resolve a reference to itself to an empty string', async ({ fs, assert }) => {
+    const envString = 'CORS_ORIGINS=$CORS_ORIGINS,http://localhost:3333'
+
+    assert.deepEqual(await new EnvParser(envString, fs.baseUrl).parse(), {
+      CORS_ORIGINS: ',http://localhost:3333',
+    })
+    assert.deepEqual(
+      await new EnvParser(envString, fs.baseUrl, { ignoreProcessEnv: true }).parse(),
+      { CORS_ORIGINS: ',http://localhost:3333' }
+    )
+  })
+
+  test('resolve a reference to itself from process.env', async ({ fs, assert, cleanup }) => {
+    process.env.CORS_ORIGINS = 'https://adonisjs.com'
+    cleanup(() => {
+      delete process.env.CORS_ORIGINS
+    })
+
+    const envString = 'CORS_ORIGINS=$CORS_ORIGINS,http://localhost:3333'
+
+    assert.deepEqual(await new EnvParser(envString, fs.baseUrl).parse(), {
+      CORS_ORIGINS: 'https://adonisjs.com',
+    })
+    assert.deepEqual(
+      await new EnvParser(envString, fs.baseUrl, { ignoreProcessEnv: true }).parse(),
+      { CORS_ORIGINS: 'https://adonisjs.com,http://localhost:3333' }
+    )
+  })
+
+  test('resolve a cycle to empty strings', async ({ fs, assert }) => {
+    const envString = ['A=$B', 'B=$A', 'C=${C}-x', 'D=$E', 'E=$F', 'F=$D'].join('\n')
+    const expected = { A: '', B: '', C: '-x', D: '', E: '', F: '' }
+
+    assert.deepEqual(await new EnvParser(envString, fs.baseUrl).parse(), expected)
+    assert.deepEqual(
+      await new EnvParser(envString, fs.baseUrl, { ignoreProcessEnv: true }).parse(),
+      expected
+    )
+  })
+
+  test('resolve the same variable more than once in a value', async ({ fs, assert }) => {
+    const envString = ['HOST=localhost', 'URL=$HOST:${HOST}'].join('\n')
+
+    assert.deepEqual(await new EnvParser(envString, fs.baseUrl).parse(), {
+      HOST: 'localhost',
+      URL: 'localhost:localhost',
+    })
+  })
+
+  test('use only own properties for the names of Object.prototype', async ({ fs, assert }) => {
+    for (const ignoreProcessEnv of [false, true]) {
+      assert.deepEqual(
+        await new EnvParser('toString=custom', fs.baseUrl, { ignoreProcessEnv }).parse(),
+        { toString: 'custom' }
+      )
+      assert.deepEqual(
+        await new EnvParser('A=$toString', fs.baseUrl, { ignoreProcessEnv }).parse(),
+        { A: '' }
+      )
+      assert.deepEqual(
+        await new EnvParser('A=${constructor}', fs.baseUrl, { ignoreProcessEnv }).parse(),
+        { A: '' }
+      )
+    }
+  })
+
   test('read file contents using the file identifier', async ({ assert, expectTypeOf }) => {
     const envString = ['PACKAGE_FILE=file:./package.json'].join('\n')
     const appRoot = new URL('../', import.meta.url)

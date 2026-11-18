@@ -172,22 +172,34 @@ export class EnvParser {
   }
 
   /**
-   * Returns the value from the parsed object
+   * Returns the value from the parsed object. Only the own properties
+   * of "parsed" and "process.env" are used, so that names like
+   * "toString" never resolve to a property of "Object.prototype".
+   *
+   * A key that is being resolved at that time (a reference to itself or
+   * a cycle) is not read from "parsed" again. It falls back to
+   * "process.env", or to an empty string.
    *
    * @param key - The environment variable key
    * @param parsed - Parsed environment variables object
+   * @param resolving - Keys whose value is being resolved at this time
    * @returns The resolved environment variable value
    */
-  #getValue(key: string, parsed: NodeJS.Dict<string>): string {
-    if (this.#preferProcessEnv && process.env[key]) {
-      return process.env[key]!
+  #getValue(key: string, parsed: NodeJS.Dict<string>, resolving: Set<string> = new Set()): string {
+    const processEnvValue = Object.hasOwn(process.env, key) ? process.env[key] : undefined
+    if (this.#preferProcessEnv && processEnvValue) {
+      return processEnvValue
     }
 
-    if (parsed[key]) {
-      return this.#interpolate(parsed[key], parsed)
+    const parsedValue = Object.hasOwn(parsed, key) ? parsed[key] : undefined
+    if (parsedValue && !resolving.has(key)) {
+      resolving.add(key)
+      const value = this.#interpolate(parsedValue, parsed, resolving)
+      resolving.delete(key)
+      return value
     }
 
-    return process.env[key] || ''
+    return processEnvValue || ''
   }
 
   /**
@@ -195,9 +207,10 @@ export class EnvParser {
    *
    * @param token - The token to interpolate
    * @param parsed - Parsed environment variables object
+   * @param resolving - Keys whose value is being resolved at this time
    * @returns Interpolated value
    */
-  #interpolateMustache(token: string, parsed: NodeJS.Dict<string>): string {
+  #interpolateMustache(token: string, parsed: NodeJS.Dict<string>, resolving: Set<string>): string {
     /**
      * Finding the closing brace. If closing brace is missing, we
      * consider the block as a normal string
@@ -216,7 +229,7 @@ export class EnvParser {
     /**
      * Getting the value of the reference inside the braces
      */
-    return `${this.#getValue(varReference, parsed)}${token.slice(closingBrace + 1)}`
+    return `${this.#getValue(varReference, parsed, resolving)}${token.slice(closingBrace + 1)}`
   }
 
   /**
@@ -227,11 +240,12 @@ export class EnvParser {
    *
    * @param token - The token to interpolate
    * @param parsed - Parsed environment variables object
+   * @param resolving - Keys whose value is being resolved at this time
    * @returns Interpolated value
    */
-  #interpolateVariable(token: string, parsed: any): string {
+  #interpolateVariable(token: string, parsed: any, resolving: Set<string>): string {
     return token.replace(/[a-zA-Z0-9_]+/, (key) => {
-      return this.#getValue(key, parsed)
+      return this.#getValue(key, parsed, resolving)
     })
   }
 
@@ -240,9 +254,10 @@ export class EnvParser {
    *
    * @param value - The value to interpolate
    * @param parsed - Parsed environment variables object
+   * @param resolving - Keys whose value is being resolved at this time
    * @returns Interpolated value
    */
-  #interpolate(value: string, parsed: NodeJS.Dict<string>): string {
+  #interpolate(value: string, parsed: NodeJS.Dict<string>, resolving: Set<string>): string {
     const tokens = value.split('$')
 
     let newValue = ''
@@ -278,14 +293,14 @@ export class EnvParser {
          * Handle mustache block
          */
         if (token.startsWith('{')) {
-          newValue += this.#interpolateMustache(token, parsed)
+          newValue += this.#interpolateMustache(token, parsed, resolving)
           return
         }
 
         /**
          * Process all words as variable
          */
-        newValue += this.#interpolateVariable(token, parsed)
+        newValue += this.#interpolateVariable(token, parsed, resolving)
       }
 
       /**
