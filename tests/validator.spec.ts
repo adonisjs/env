@@ -47,7 +47,7 @@ test.group('Env Validator', () => {
 
     try {
       validator.validate({})
-    } catch (error) {
+    } catch (error: any) {
       assert.instanceOf(error, E_INVALID_ENV_VARIABLES)
       assert.deepEqual(error.help.split('\n'), [
         '- Missing environment variable "PORT"',
@@ -66,7 +66,7 @@ test.group('Env Validator', () => {
 
     try {
       validator.validate({})
-    } catch (error) {
+    } catch (error: any) {
       const source = error.stack.split('\n')[2]
       assert.match(string.toUnixSlash(source), new RegExp(string.toUnixSlash(import.meta.dirname)))
     }
