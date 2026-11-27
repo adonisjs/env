@@ -74,7 +74,7 @@ export class EnvLoader {
     try {
       const contents = await readFile(filePath, 'utf-8')
       return { contents, fileExists: true }
-    } catch (error) {
+    } catch (error: any) {
       /* c8 ignore next 3 */
       if (error.code !== 'ENOENT') {
         throw error

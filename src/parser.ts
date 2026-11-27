@@ -79,7 +79,7 @@ export class EnvParser {
       try {
         const contents = await readFile(filePath, 'utf-8')
         return contents
-      } catch (error) {
+      } catch (error: any) {
         if (error.code === 'ENOENT') {
           throw new RuntimeException(
             `Cannot process "${key}" env variable. Unable to locate file "${filePath}"`,

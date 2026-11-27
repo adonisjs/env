@@ -60,7 +60,7 @@ export class EnvValidator<Schema extends { [key: string]: ValidateFn<unknown> }>
 
         try {
           result[key] = this.#schema[key](key, value) as any
-        } catch (error) {
+        } catch (error: any) {
           help.push(`- ${error.message}`)
         }
         return result
